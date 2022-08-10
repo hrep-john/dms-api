@@ -1,0 +1,13 @@
+version: 0.2
+phases:
+   pre_build:
+     commands:
+         - cp .env.uat .env
+         - composer install
+artifacts:
+   files:
+         - '**/*'
+   name: $(date +%Y-%m-%dT%H:%M:%S).zip
+proxy:
+   upload-artifacts: yes
+   logs: yes
