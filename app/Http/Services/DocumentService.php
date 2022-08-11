@@ -72,7 +72,7 @@ class DocumentService extends BaseService implements DocumentServiceInterface
             $options['attributesToHighlight'] = ['*'];
 
             $options['limit'] = $perPage;
-            $options['offset'] = $page - 1;
+            $options['offset'] = ($page - 1) * $perPage;
             $options['attributesToCrop'] = ['formatted_detail_metadata', 'detail_metadata'];
             $options['cropLength'] = 10;
             $options['attributesToRetrieve'] = [
@@ -133,9 +133,9 @@ class DocumentService extends BaseService implements DocumentServiceInterface
 
     protected function getMetaFromHits($hits)
     {
-        $currentPage = $hits['offset'] + 1;
         $perPage = $hits['limit'];
         $total = $hits['nbHits'];
+        $currentPage = ( $hits['offset'] / $perPage ) + 1;
         $lastPage = ceil($total / $perPage);
 
         return [
@@ -144,7 +144,7 @@ class DocumentService extends BaseService implements DocumentServiceInterface
             'per_page' => $perPage,
             'total' => $total,
             'to' => ($currentPage * $perPage) > $total ? $total : ($currentPage * $perPage),
-            'from' => ($hits['offset'] * $perPage) + 1
+            'from' => $hits['offset'] + 1
         ];
     }
 
@@ -198,18 +198,38 @@ class DocumentService extends BaseService implements DocumentServiceInterface
             } else {
                 $document = $that->store($mappings);
             }
-    
-            $document
+
+            $file = $document
                 ->addMedia($attributes['document'])
                 ->withCustomProperties([
                     'version' => $count + 1
                 ])
                 ->toMediaCollection('files');
-    
-            $that->dispatchExtractDocument($document);
+
+            $document->searchable();
+
+            $extractable = array(
+                ExtractableOcr::Pdf,
+                ExtractableOcr::Tiff,
+                ExtractableOcr::Png,
+                ExtractableOcr::Jpeg
+            );
+
+            if (in_array($file->mime_type, $extractable)) {
+                dispatch(new ExtractDocument($file->getPath(), auth()->user()->id));
+            }
 
             return $document;
         });
+    }
+
+    public function findDocumentByMediaId(int $mediaId) 
+    {
+        $document = Document::whereHas('media', function ($query) use ($mediaId) {
+            $query->where('id', $mediaId);
+        });
+
+        return $document->first();
     }
 
     protected function checkFilenameCount(string $file_name = '')
@@ -224,20 +244,6 @@ class DocumentService extends BaseService implements DocumentServiceInterface
         }
 
         return $count;
-    }
-
-    protected function dispatchExtractDocument(Document $document) 
-    {
-        $extractable = array(
-            ExtractableOcr::Pdf,
-            ExtractableOcr::Tiff,
-            ExtractableOcr::Png,
-            ExtractableOcr::Jpeg
-        );
-
-        if (in_array($document->latest_media->mime_type, $extractable)) {
-            dispatch(new ExtractDocument($document, auth()->user()));
-        }
     }
 
     protected function formatAttributes($attributes): array
