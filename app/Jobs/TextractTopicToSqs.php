@@ -2,15 +2,15 @@
 
 namespace App\Jobs;
 
-use App\Models\Document;
-use App\Models\User;
+use App;
+use App\Http\Services\Contracts\DocumentServiceInterface;
+use App\Http\Services\Contracts\UserServiceInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use DB;
 
 class TextractTopicToSqs implements ShouldQueue
 {
@@ -37,17 +37,14 @@ class TextractTopicToSqs implements ShouldQueue
      */
     public function handle()
     {
-        $payloadObjectPath = $this->payload['DocumentLocation']['S3ObjectName'];
-        $split = explode('/', $payloadObjectPath);
+        $objectPath = $this->payload['DocumentLocation']['S3ObjectName'];
+        $split = explode('/', $objectPath);
         $mediaId = $split[1];
 
-        $document = Document::whereHas('media', function ($query) use ($mediaId) {
-            $query->where('id', $mediaId);
-        })->first();
-
-        $auth = User::find($document->updated_by);
+        $document = App::make(DocumentServiceInterface::class)->findDocumentByMediaId($mediaId);
+        $user = App::make(UserServiceInterface::class)->find($document->updated_by);
         $jobId = $this->payload['JobId'];
 
-        dispatch(new GetExtractedDocument($document, $auth, $jobId));
+        dispatch(new GetExtractedDocument($document->id, $user->id, $jobId));
     }
 }

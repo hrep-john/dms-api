@@ -10,5 +10,5 @@ use App\Models\Document;
 */
 interface DocumentEntityMetadataServiceInterface extends BaseServiceInterface
 {
-    public function analyze(Document $model, $user);
+    public function analyze(int $documentId, int $userId);
 }

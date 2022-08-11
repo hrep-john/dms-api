@@ -13,4 +13,5 @@ interface DocumentServiceInterface extends BaseServiceInterface
     public function upload($attributes): Document;
     public function download(int $id);
     public function search();
+    public function findDocumentByMediaId(int $mediaId);
 }
