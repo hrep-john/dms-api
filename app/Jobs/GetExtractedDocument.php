@@ -13,8 +13,8 @@ class GetExtractedDocument implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $document = null;
-    public $authUser = null;
+    public $documentId = null;
+    public $userId = null;
     public $jobId = null;
 
     /**
@@ -22,10 +22,10 @@ class GetExtractedDocument implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($document, $authUser, $jobId)
+    public function __construct(int $documentId, int $userId, string $jobId)
     {
-        $this->document = $document;
-        $this->authUser = $authUser;
+        $this->documentId = $documentId;
+        $this->userId = $userId;
         $this->jobId = $jobId;
     }
 
@@ -36,6 +36,6 @@ class GetExtractedDocument implements ShouldQueue
      */
     public function handle()
     {
-        app(\App\Http\Services\Contracts\DocumentDetailMetadataServiceInterface::class)->getResults($this->document, $this->authUser, $this->jobId);
+        app(\App\Http\Services\Contracts\DocumentDetailMetadataServiceInterface::class)->getResults($this->documentId, $this->userId, $this->jobId);
     }
 }

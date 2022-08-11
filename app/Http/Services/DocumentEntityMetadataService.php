@@ -2,7 +2,9 @@
 
 namespace App\Http\Services;
 
+use App;
 use App\Http\Services\Contracts\DocumentEntityMetadataServiceInterface;
+use App\Http\Services\Contracts\DocumentServiceInterface;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Document;
 use App\Models\DocumentEntityMetadata;
@@ -16,7 +18,7 @@ class DocumentEntityMetadataService extends BaseService implements DocumentEntit
      */     
     protected $model;
     protected $sdk;
-    protected $auth;
+    protected $userId;
 
     /**      
      * DocumentEntityMetadataService constructor.      
@@ -40,13 +42,13 @@ class DocumentEntityMetadataService extends BaseService implements DocumentEntit
         ));
     }
 
-    public function analyze(Document $model, $auth)
+    public function analyze(int $documentId, $userId)
     {
-        $this->auth = $auth;
-
+        $this->userId = $userId;
         $this->initialize(ComprehendClient::class);
-        $results = $this->getAllEntities($model);
-        $this->bulkInsert($model, $results);
+        $document = App::make(DocumentServiceInterface::class)->find($documentId);
+        $results = $this->getAllEntities($document);
+        $this->bulkInsert($document, $results);
 
         return $results;
     }
@@ -56,7 +58,7 @@ class DocumentEntityMetadataService extends BaseService implements DocumentEntit
         return $attributes;
     }
 
-    protected function getAllEntities($model)
+    protected function getAllEntities(Document $model)
     {
         $data = [];
         $details = $model->detailMetadata->chunk(500);
@@ -76,7 +78,7 @@ class DocumentEntityMetadataService extends BaseService implements DocumentEntit
         return $data;
     }
 
-    protected function bulkInsert($model, $results)
+    protected function bulkInsert(Document $model, $results)
     {
         $model->entityMetadata()->delete();
         $results = collect($results)->chunk(500);
@@ -100,8 +102,8 @@ class DocumentEntityMetadataService extends BaseService implements DocumentEntit
                 'score' => $item['Score'],
                 'created_at' => now(),
                 'updated_at' => now(),
-                'created_by' => $this->auth->id,
-                'updated_by' => $this->auth->id
+                'created_by' => $this->userId,
+                'updated_by' => $this->userId
             ];
         })->toArray();
     }

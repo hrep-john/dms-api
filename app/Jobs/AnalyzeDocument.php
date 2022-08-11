@@ -13,18 +13,18 @@ class AnalyzeDocument implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $document = null;
-    public $authUser = null;
+    public $documentId = null;
+    public $userId = null;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($document, $authUser)
+    public function __construct(int $documentId, int $userId)
     {
-        $this->document = $document;
-        $this->authUser = $authUser;
+        $this->documentId = $documentId;
+        $this->userId = $userId;
     }
 
     /**
@@ -34,6 +34,6 @@ class AnalyzeDocument implements ShouldQueue
      */
     public function handle()
     {
-        app(\App\Http\Services\Contracts\DocumentEntityMetadataServiceInterface::class)->analyze($this->document, $this->authUser);
+        app(\App\Http\Services\Contracts\DocumentEntityMetadataServiceInterface::class)->analyze($this->documentId, $this->userId);
     }
 }
