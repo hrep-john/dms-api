@@ -30,7 +30,7 @@ class StoreRequest extends FormRequest
             'username' => ['required', 'string', 'max:50', 'unique:users,username,' . $this->route('user.id'), 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $this->route('user.id')],
             'password' => ['required', 'string', 'max:25', 'min:6'],
-            'roles' => ['required'],
+            'roles' => ['required', 'exists:roles,name'],
             'user_info' => ['required'],
             'user_info.tenant_id' => ['required', 'integer'],
             'user_info.first_name' => ['required', 'string', 'max:255'],

@@ -61,7 +61,7 @@ class DocumentEntityMetadataService extends BaseService implements DocumentEntit
     protected function getAllEntities(Document $model)
     {
         $data = [];
-        $details = $model->detailMetadata->chunk(500);
+        $details = $model->detailMetadata->chunk(50);
 
         foreach($details as $detail) {
             $detail = $detail->pluck('text')->implode(' ');
@@ -81,7 +81,7 @@ class DocumentEntityMetadataService extends BaseService implements DocumentEntit
     protected function bulkInsert(Document $model, $results)
     {
         $model->entityMetadata()->delete();
-        $results = collect($results)->chunk(500);
+        $results = collect($results)->chunk(250);
 
         foreach($results as $result) {
             $formatted = $this->mappings($result, $model->id);
