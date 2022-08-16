@@ -26,7 +26,10 @@ class ProfileController extends Controller
     public function show()
     {
         $user = Auth::user();
-        return $this->success(['user' => $user->flattenUserInfo(), 'roles' => $user->user_roles], Response::HTTP_OK);
+        return $this->success([
+            'user' => $user->flattenUserInfo(), 
+            'roles' => $user->user_roles,
+        ], Response::HTTP_OK);
     }
 
     /**

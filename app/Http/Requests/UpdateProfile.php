@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
 class UpdateProfile extends FormRequest
 {
@@ -27,7 +27,16 @@ class UpdateProfile extends FormRequest
         $todayDate = date('Y-m-d');
 
         return [
-            'email' => ['nullable', 'email', 'unique:users,email,' . Auth::user()['id'], 'max:255'],
+            'email' => [
+                'nullable',
+                'email',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    if (User::where('email', $value)->where('id', '!=',$this->user()->id)->count() > 0) {
+                        $fail('The email has already been taken.');
+                    }
+                }
+            ],
             'first_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['nullable', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],

@@ -90,12 +90,12 @@ class DocumentDetailMetadataService extends BaseService implements DocumentDetai
 
         $response = $this->sdk->getDocumentTextDetection(['JobId' => $jobId]);
         $nextToken = $response['NextToken'];
-        $results = array_merge($results, $this->filterBlockResult($response['Blocks'], 'WORD'));
+        $results = array_merge($results, $this->filterBlockResult($response['Blocks'], 'LINE'));
 
         while (!is_null($nextToken)) {
             $response = $this->sdk->getDocumentTextDetection(['JobId' => $jobId, 'NextToken' => $nextToken]);
             $nextToken = $response['NextToken'];
-            $results = array_merge($results, $this->filterBlockResult($response['Blocks'], 'WORD'));
+            $results = array_merge($results, $this->filterBlockResult($response['Blocks'], 'LINE'));
         }
 
         return $results;
@@ -131,7 +131,7 @@ class DocumentDetailMetadataService extends BaseService implements DocumentDetai
         $document = App::make(DocumentServiceInterface::class)->find($documentId);
         $document->detailMetadata()->delete();
 
-        $results = collect($results)->chunk(500);
+        $results = collect($results)->chunk(250);
 
         foreach($results as $result) {
             $formatted = $this->mappings($result, $document->id);
