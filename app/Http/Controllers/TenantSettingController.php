@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use ApiErrorResponse;
+use App;
 use App\Models\TenantSetting as MainModel;
 use App\Http\Resources\TenantSettingResource as MainResource;
 use App\Http\Services\Contracts\TenantSettingServiceInterface;
 use App\Http\Requests\TenantSetting\StoreRequest;
+use App\Http\Requests\TenantSetting\SyncRequest;
 use App\Http\Requests\TenantSetting\UpdateRequest;
 use App\Http\Requests\TenantSettingDomainRequest;
+use App\Http\Requests\UploadTenantSettingImage;
+use App\Http\Services\Contracts\TenantServiceInterface;
 use App\Traits\ApiResponder;
 use Exception;
 use Lang;
@@ -130,5 +134,43 @@ class TenantSettingController extends Controller
         }
 
         return $this->success(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Sync the specified resource in storage.
+     *
+     * @param  SyncRequest  $request
+     * @return MainResource
+     */
+    public function sync(SyncRequest $request)
+    {
+        try {
+            $request = $request->validated();
+            $model = App::make(TenantServiceInterface::class)->find($request['tenant_id']);
+
+            $this->service->sync($model, $request['settings']);
+        } catch (Exception $e) {
+            $this->throwError(Lang::get('error.update.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+        }
+
+        return $this->success([
+            'message' => Lang::get('success.updated')
+        ], Response::HTTP_OK);
+    }
+
+    /**
+     * Upload a new file in storage.
+     *
+     * @param  StoreRequest  $request
+     * @return MainResource
+     */
+    public function upload(UploadTenantSettingImage $request)
+    {
+        $result = $this->service->upload($request->file('image'));
+
+        return $this->success([
+            'url' => $result,
+            'message' => Lang::get('success.uploaded')
+        ], Response::HTTP_OK);
     }
 }
