@@ -6,14 +6,16 @@ use App;
 use App\Enums\ExtractableOcr;
 use App\Http\Resources\DocumentBasicResource;
 use App\Http\Services\Contracts\DocumentServiceInterface;
+use App\Http\Services\Contracts\TenantSettingServiceInterface;
 use App\Jobs\ExtractDocument;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Document;
 use Arr;
+use Event;
 use MeiliSearch\Endpoints\Indexes;
 use Storage;
 use Str;
-use IRR;
+use \OwenIt\Auditing\Events\AuditCustom;
 
 class DocumentService extends BaseService implements DocumentServiceInterface
 {
@@ -168,6 +170,8 @@ class DocumentService extends BaseService implements DocumentServiceInterface
     {
         $document = $this->find($id);
 
+        $this->writeDocumentAuditLog($document, 'downloaded');
+
         return Storage::disk('s3')->temporaryUrl(  
             $document->latest_media->getPath(),
             now()->addMinutes(1),
@@ -175,15 +179,22 @@ class DocumentService extends BaseService implements DocumentServiceInterface
         );
     }
 
+    public function writeDocumentAuditLog($document, $event, $old = [], $new = [])
+    {
+        $document->auditEvent = $event;
+        $document->isCustomEvent = true;
+        $document->auditCustomOld = $old;
+        $document->auditCustomNew = $new;
+
+        Event::dispatch(AuditCustom::class, [$document]);
+    }
+
     public function upload($attributes): Document
     {
         $that = $this;
 
         return $this->transaction(function() use ($attributes, $that) {
-            $mappings = [
-                'folder_id' => $that->getFolderId(),
-                'file_name' => $attributes['document']->getClientOriginalName()
-            ];
+            $mappings = $this->getMappings($attributes['document']);
 
             $count = $that->checkFilenameCount($mappings['file_name']);
 
@@ -253,6 +264,11 @@ class DocumentService extends BaseService implements DocumentServiceInterface
         return $attributes;
     }
 
+    protected function afterStore($model, $attributes): void
+    {
+        App::make(TenantSettingServiceInterface::class)->incrementTenantDocumentSeriesId(1);
+    }
+
     protected function afterDelete($model): void
     {
         if ($model->detailMetadata()->count() > 0) {
@@ -266,11 +282,21 @@ class DocumentService extends BaseService implements DocumentServiceInterface
         }
     }
 
-    private function getFolderId() 
+    private function getMappings($document) 
     {
         $tenant = auth()->user()->userInfo->tenant;
+        $settings = $tenant->settings;
+
+        $prefix = $settings->where('key', 'tenant.document.series.id.prefix')->first()->value;
+        $counter = $settings->where('key', 'tenant.document.series.current.counter')->first()->value;
+        $length = $settings->where('key', 'tenant.document.series.counter.length')->first()->value;
+
         $folder = $tenant->folders->first();
 
-        return $folder->id;
+        return [
+            'folder_id' => $folder->id,
+            'file_name' => $document->getClientOriginalName(),
+            'series_id' => sprintf('%s%s', $prefix, str_pad($counter, $length, "0", STR_PAD_LEFT))
+        ];
     }
 }
