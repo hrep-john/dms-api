@@ -85,4 +85,15 @@ class TenantSettingService extends BaseService implements TenantSettingServiceIn
             return $url;
         });
     }
+
+    public function incrementTenantDocumentSeriesId(int $tenantId)
+    {
+        $model = $this->model
+            ->where('tenant_id', $tenantId)
+            ->where('key', 'tenant.document.series.current.counter')
+            ->first();
+
+        $model->value += 1;
+        $model->save();
+    }
 }

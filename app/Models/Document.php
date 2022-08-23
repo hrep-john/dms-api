@@ -20,6 +20,7 @@ class Document extends BaseModel implements HasMedia
 
     protected $fillable = [
         'folder_id',
+        'series_id',
         'file_name',
         'user_defined_field',
         'created_by',
@@ -58,6 +59,7 @@ class Document extends BaseModel implements HasMedia
             'formatted_udfs',
             'formatted_updated_at',
             'formatted_detail_metadata',
+            'series_id',
             'file_name',
             'file_extension',
             'file_size',

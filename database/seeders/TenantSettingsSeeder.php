@@ -26,11 +26,25 @@ class TenantSettingsSeeder extends Seeder
             $settings = [
                 [
                     'tenant_id' => $tenant->id,
-                    'key' => 'login.background.image',
-                    'value' => '/@src/assets/illustrations/login/background-light.svg?format=web',
+                    'key' => 'tenant.document.series.id.prefix',
+                    'value' => 'DOC',
                     'type' => 'string',
-                    'comments' => 'Login Background Image'
-                ]
+                    'comments' => 'Tenant Document Series Id Prefix'
+                ],
+                [
+                    'tenant_id' => $tenant->id,
+                    'key' => 'tenant.document.series.current.counter',
+                    'value' => 1,
+                    'type' => 'number',
+                    'comments' => 'Tenant Document Series Current Counter'
+                ],
+                [
+                    'tenant_id' => $tenant->id,
+                    'key' => 'tenant.document.series.counter.length',
+                    'value' => 5,
+                    'type' => 'number',
+                    'comments' => 'Tenant Document Series Counter Length'
+                ],
             ];
 
             foreach($settings as $setting) {

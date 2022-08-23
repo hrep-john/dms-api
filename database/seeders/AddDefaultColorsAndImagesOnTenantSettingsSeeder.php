@@ -17,7 +17,7 @@ class AddDefaultColorsAndImagesOnTenantSettingsSeeder extends Seeder
         [
             'label' => 'Logo',
             'key' => 'tenant-logo',
-            'value' => '/@src/assets/illustrations/login/background-light.svg?format=web',
+            'value' => '/public/default-logo.png',
             'comments' => 'Tenant Customization - App Theme - Logo'
         ],
         [

@@ -44,6 +44,7 @@ class RunSeeder extends Command
         Artisan::call('db:seed --class=AdminUserSeeder --force');
         Artisan::call('db:seed --class=UserDefinedFieldsSeeder --force');
         Artisan::call('db:seed --class=TenantSettingsSeeder --force');
+        Artisan::call('db:seed --class=AddDefaultColorsAndImagesOnTenantSettingsSeeder --force');
 
         return true;
     }

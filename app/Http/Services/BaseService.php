@@ -149,6 +149,16 @@ class BaseService implements BaseServiceInterface
         return $this->model->findMany($ids);
     }
 
+    /**
+    * @param $field
+    * @param $value
+    * @return Model
+    */
+    public function findBy($field, $value): ?Model
+    {
+        return $this->model->where($field, $value)->first();
+    }
+
     // Custom Hooks
 
     protected function formatAttributes($attributes): array
