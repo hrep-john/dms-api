@@ -63,6 +63,7 @@ class DocumentController extends Controller
      */
     public function store(StoreRequest $request)
     {
+        Logger('documentcontroller store');
         try {
             $result = $this->service->upload($request->validated());
         } catch (Exception $e) {

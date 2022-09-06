@@ -16,6 +16,7 @@ class DocumentBasicResource extends JsonResource
     {
         return [
             'id'            => $this->id,
+            'series_id'     => $this->series_id,
             'filename'      => $this->file_name,
             'extension'     => $this->latest_media->extension,
             'size'          => $this->latest_media->human_readable_size,
