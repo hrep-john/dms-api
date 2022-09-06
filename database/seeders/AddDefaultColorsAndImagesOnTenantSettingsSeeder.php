@@ -17,7 +17,7 @@ class AddDefaultColorsAndImagesOnTenantSettingsSeeder extends Seeder
         [
             'label' => 'Logo',
             'key' => 'tenant-logo',
-            'value' => '/public/default-logo.png',
+            'value' => '/default-logo.png',
             'comments' => 'Tenant Customization - App Theme - Logo'
         ],
         [
@@ -55,7 +55,7 @@ class AddDefaultColorsAndImagesOnTenantSettingsSeeder extends Seeder
         [
             'label' => 'Left Section - Placeholder Image',
             'key' => 'login-placeholder-image',
-            'value' => '/@src/assets/illustrations/login/background-light.svg?format=web',
+            'value' => '/images/illustrations/login/background-light.svg?format=web',
             'comments' => 'Tenant Customization - Login Page - Placeholder Image'
         ],
         [
@@ -80,7 +80,7 @@ class AddDefaultColorsAndImagesOnTenantSettingsSeeder extends Seeder
         [
             'label' => 'Right Section - Placeholder Image',
             'key' => 'forgot-password-placeholder-image',
-            'value' => '/@src/assets/illustrations/forgot-password/background-dark.svg?format=webp',
+            'value' => '/images/illustrations/forgot-password/background-dark.svg?format=webp',
             'comments' => 'Tenant Customization - Forgot Password Page - Placeholder Image'
         ],
         [
@@ -93,7 +93,7 @@ class AddDefaultColorsAndImagesOnTenantSettingsSeeder extends Seeder
         [
             'label' => 'Left Section - Placeholder Image',
             'key' => 'reset-password-placeholder-image',
-            'value' => '/@src/assets/illustrations/reset-password/background-dark.svg?format=webp',
+            'value' => '/images/illustrations/reset-password/background-dark.svg?format=webp',
             'comments' => 'Tenant Customization - Reset Password Page - Placeholder Image'
         ],
         [

@@ -40,7 +40,7 @@ class TenantService extends BaseService implements TenantServiceInterface
             [
                 'tenant_id' => $model->id,
                 'key' => 'login.background.image',
-                'value' => '/@src/assets/illustrations/login/background-light.svg?format=web',
+                'value' => '/images/illustrations/login/background-light.svg?format=web',
                 'type' => 'string',
                 'comments' => 'Login Background Image',
                 'created_by' => auth()->user()->id,
