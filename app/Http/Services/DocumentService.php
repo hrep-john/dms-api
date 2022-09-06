@@ -79,6 +79,7 @@ class DocumentService extends BaseService implements DocumentServiceInterface
             $options['cropLength'] = 10;
             $options['attributesToRetrieve'] = [
                 'id',
+                'series_id',
                 'file_name',
                 'file_extension',
                 'file_size',
@@ -96,6 +97,7 @@ class DocumentService extends BaseService implements DocumentServiceInterface
         $results = collect($builder['hits'])->map(function ($hit) {
             $collection = [];
             $requiredFields = [
+                'series_id',
                 'file_name',
                 'file_size',
                 'file_extension',
@@ -114,6 +116,7 @@ class DocumentService extends BaseService implements DocumentServiceInterface
 
             $mappings = [
                 'id' => $hit['id'],
+                'series_id' => $hit['series_id'],
                 'file_name' => $hit['file_name'],
                 'user_defined_field' => $hit['user_defined_field'],
                 'updated_at' => $hit['formatted_updated_at'],
@@ -191,6 +194,9 @@ class DocumentService extends BaseService implements DocumentServiceInterface
 
     public function upload($attributes): Document
     {
+        Logger('documentservice upload');
+        Logger($attributes);
+
         $that = $this;
 
         return $this->transaction(function() use ($attributes, $that) {
