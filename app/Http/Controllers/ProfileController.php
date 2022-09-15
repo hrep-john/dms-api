@@ -29,6 +29,7 @@ class ProfileController extends Controller
         return $this->success([
             'user' => $user->flattenUserInfo(), 
             'roles' => $user->user_roles,
+            'permissions' => $user->user_permissions,
         ], Response::HTTP_OK);
     }
 

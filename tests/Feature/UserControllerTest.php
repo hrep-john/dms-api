@@ -42,7 +42,7 @@ class UserControllerTest extends TestCase
         $authUser = User::factory()->make();
 
         $payload = $this->getRequiredPayload();
-        $payload['roles'] = ['encoder'];
+        $payload['roles'] = ['Encoder'];
 
         $response = $this->actingAs($authUser)->post('/api/users', $payload);
 
