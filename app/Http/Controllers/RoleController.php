@@ -3,24 +3,23 @@
 namespace App\Http\Controllers;
 
 use ApiErrorResponse;
-use App\Models\Tenant as MainModel;
-use App\Http\Resources\TenantResource as BasicResource;
-use App\Http\Services\Contracts\TenantServiceInterface;
-use App\Http\Requests\Tenant\StoreRequest;
-use App\Http\Requests\Tenant\UpdateRequest;
-use App\Http\Resources\TenantListResource as ListResource;
+use Spatie\Permission\Models\Role as MainModel;
+use App\Http\Resources\RoleResource as BasicResource;
+use App\Http\Services\Contracts\RoleServiceInterface;
+use App\Http\Requests\Role\StoreRequest;
+use App\Http\Requests\Role\UpdateRequest;
 use App\Traits\ApiResponder;
 use Exception;
 use Lang;
 use Symfony\Component\HttpFoundation\Response;
 
-class TenantController extends Controller
+class RoleController extends Controller
 {
     use ApiResponder;
 
     protected $service;
 
-    public function __construct(TenantServiceInterface $service)
+    public function __construct(RoleServiceInterface $service)
     {
         $this->service = $service;
     }
@@ -81,13 +80,13 @@ class TenantController extends Controller
      * Update the specified resource in storage.
      *
      * @param  UpdateRequest  $request
-     * @param  MainModel  $tenant
+     * @param  MainModel  $role
      * @return BasicResource
      */
-    public function update(UpdateRequest $request, MainModel $tenant)
+    public function update(UpdateRequest $request, MainModel $role)
     {
         try {
-            $result = $this->service->update($request->validated(), $tenant);
+            $result = $this->service->update($request->validated(), $role);
         } catch (Exception $e) {
             $this->throwError(Lang::get('error.update.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
@@ -101,13 +100,13 @@ class TenantController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  MainModel  $tenant
+     * @param  MainModel  $role
      * @return \Illuminate\Http\Response
      */
-    public function destroy(MainModel $tenant)
+    public function destroy(MainModel $role)
     {
         try {
-            $this->service->delete($tenant);
+            $this->service->delete($role);
         } catch (Exception $e) {
             $this->throwError(Lang::get('error.delete.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
@@ -118,14 +117,14 @@ class TenantController extends Controller
     /**
      * Display all listing of the resource.
      *
-     * @return ListResource
+     * @return BasicResource
      */
     public function list()
     {
         $results = $this->service->all();
 
         return $this->success([
-            'results' => ListResource::collection($results)
+            'results' => BasicResource::collection($results)
         ], Response::HTTP_OK);
     }
 }

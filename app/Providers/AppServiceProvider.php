@@ -24,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(\App\Http\Services\Contracts\UserDefinedFieldServiceInterface::class, \App\Http\Services\UserDefinedFieldService::class);
         $this->app->bind(\App\Http\Services\Contracts\TenantServiceInterface::class, \App\Http\Services\TenantService::class);
         $this->app->bind(\App\Http\Services\Contracts\TenantSettingServiceInterface::class, \App\Http\Services\TenantSettingService::class);
+        $this->app->bind(\App\Http\Services\Contracts\RoleServiceInterface::class, \App\Http\Services\RoleService::class);
     }
 
     /**

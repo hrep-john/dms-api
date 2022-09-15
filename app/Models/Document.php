@@ -46,24 +46,25 @@ class Document extends BaseModel implements HasMedia
     {
         $document = $this
             ->where('id', '=', $this->id)
-            ->first()
-            ->toArray();
+            ->first();
 
-        return Arr::only($document, [
-            'id',
-            'tenant_id',
-            'folder_id',
-            'user_defined_field',
-            'created_by',
-            'updated_by',
-            'formatted_udfs',
-            'formatted_updated_at',
-            'formatted_detail_metadata',
-            'series_id',
-            'file_name',
-            'file_extension',
-            'file_size',
-        ]);
+        if (!is_null($document)) {
+            return Arr::only($document->toArray(), [
+                'id',
+                'tenant_id',
+                'folder_id',
+                'user_defined_field',
+                'created_by',
+                'updated_by',
+                'formatted_udfs',
+                'formatted_updated_at',
+                'formatted_detail_metadata',
+                'series_id',
+                'file_name',
+                'file_extension',
+                'file_size',
+            ]);
+        }
     }
 
     public function folder()

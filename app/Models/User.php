@@ -173,6 +173,13 @@ class User extends Authenticatable implements Auditable
         return count($roles) > 0 ? $roles : [];
     }
 
+    public function getUserPermissionsAttribute()
+    {
+        $permissions = $this->getAllPermissions();
+
+        return count($permissions) > 0 ? $permissions->pluck('name') : [];
+    }
+
     public function getFormattedCreatedByAttribute()
     {
         return User::find($this->created_by)->userInfo->full_name ?? '';

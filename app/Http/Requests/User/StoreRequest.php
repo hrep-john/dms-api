@@ -32,7 +32,7 @@ class StoreRequest extends FormRequest
             'password' => ['required', 'string', 'max:25', 'min:6'],
             'roles' => ['required', 'exists:roles,name'],
             'user_info' => ['required'],
-            'user_info.tenant_id' => ['required', 'integer'],
+            'user_info.tenant_id' => ['required', 'integer', 'exists:tenants,id'],
             'user_info.first_name' => ['required', 'string', 'max:255'],
             'user_info.last_name' => ['required', 'string', 'max:255'],
             'user_info.middle_name' => ['nullable', 'string', 'max:255'],

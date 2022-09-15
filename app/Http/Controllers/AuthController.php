@@ -46,8 +46,8 @@ class AuthController extends Controller
         $token = $newUser->createToken('api_token')->plainTextToken;
         $type = 'Bearer';
 
-        // Assign encoder user permissions
-        $newUser->assignRole('encoder');
+        // Assign Encoder user permissions
+        $newUser->assignRole('Encoder');
         $rolesNames = $newUser->getRoleNames();
 
         return $this->success([
@@ -72,12 +72,13 @@ class AuthController extends Controller
         $token = Auth::user()->createToken('api_token')->plainTextToken;
         $type = 'Bearer';
 
-        // Get roles
-        $roles = Auth::user()->getRoleNames();
+        $roles = Auth::user()->user_roles;
+        $permissions = Auth::user()->user_permissions;
 
         return $this->success([
             'user' => Auth::user()->flattenUserInfo(), 
-            'roles' => $roles, 
+            'roles' => $roles,
+            'permissions' => $permissions,
             'access_token' => $token, 
             'token_type' => $type
         ], Response::HTTP_OK);
