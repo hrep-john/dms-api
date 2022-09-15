@@ -43,7 +43,7 @@ class UdfController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  StoreRequest  $request
-     * @return MainResource
+     * @return BasicResource
      */
     public function store(StoreRequest $request)
     {
@@ -63,7 +63,7 @@ class UdfController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return MainResource
+     * @return BasicResource
      */
     public function show(int $id)
     {
@@ -81,7 +81,7 @@ class UdfController extends Controller
      *
      * @param  UpdateRequest  $request
      * @param  MainModel  $udf
-     * @return MainResource
+     * @return BasicResource
      */
     public function update(UpdateRequest $request, MainModel $udf)
     {

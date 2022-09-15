@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use ApiErrorResponse;
-use App\Http\Resources\DocumentEntityMetadataResource as MainResource;
+use App\Http\Resources\DocumentEntityMetadataResource as BasicResource;
 use App\Http\Services\Contracts\DocumentEntityMetadataServiceInterface;
 use Exception;
 use Lang;
@@ -21,13 +21,13 @@ class DocumentEntityMetadataController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return MainResource
+     * @return BasicResource
      */
     public function index()
     {
         // PAGINATION
         $results = $this->service->paginate();
-        $results->data = MainResource::collection($results);
+        $results->data = BasicResource::collection($results);
 
         return $this->success([
             'results' => $this->paginate($results)
