@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use ApiErrorResponse;
 use Spatie\Permission\Models\Role as MainModel;
 use App\Http\Resources\RoleResource as BasicResource;
+use App\Http\Resources\RoleListResource as RoleListResource;
+use App\Http\Resources\PermissionListResource as PermissionListResource;
 use App\Http\Services\Contracts\RoleServiceInterface;
 use App\Http\Requests\Role\StoreRequest;
 use App\Http\Requests\Role\UpdateRequest;
+use App\Http\Resources\RoleFullResource as FullResource;
 use App\Traits\ApiResponder;
 use Exception;
 use Lang;
@@ -73,7 +76,7 @@ class RoleController extends Controller
             $this->throwError(Lang::get('error.show.failed'), NULL, Response::HTTP_NOT_FOUND, ApiErrorResponse::UNKNOWN_ROUTE_CODE);
         }
 
-        return $this->success(['result' => new BasicResource($result)], Response::HTTP_OK);
+        return $this->success(['result' => new FullResource($result)], Response::HTTP_OK);
     }
 
     /**
@@ -117,14 +120,28 @@ class RoleController extends Controller
     /**
      * Display all listing of the resource.
      *
-     * @return BasicResource
+     * @return RoleListResource
      */
     public function list()
     {
         $results = $this->service->all();
 
         return $this->success([
-            'results' => BasicResource::collection($results)
+            'results' => RoleListResource::collection($results)
+        ], Response::HTTP_OK);
+    }
+
+    /**
+     * Display all permission listing of the resource.
+     *
+     * @return PermissionListResource
+     */
+    public function permissionList()
+    {
+        $results = $this->service->permissionList();
+
+        return $this->success([
+            'results' => $results
         ], Response::HTTP_OK);
     }
 }

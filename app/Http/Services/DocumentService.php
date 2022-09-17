@@ -194,9 +194,6 @@ class DocumentService extends BaseService implements DocumentServiceInterface
 
     public function upload($attributes): Document
     {
-        Logger('documentservice upload');
-        Logger($attributes);
-
         $that = $this;
 
         return $this->transaction(function() use ($attributes, $that) {

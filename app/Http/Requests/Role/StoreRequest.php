@@ -25,11 +25,15 @@ class StoreRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255', 'unique:roles,name'],
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['required', 'string', 'max:255', 'exists:permissions,name'],
         ];
     }
 
     public function messages()
     {
-        return [];
+        return [
+            'permissions.*.exists' => 'The permission name should exist in the permissions table.'
+        ];
     }
 }

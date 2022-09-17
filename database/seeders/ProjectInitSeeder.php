@@ -2,7 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Enums\UserRole;
+use App\Enums\UserLevel;
+use App\Models\Tenant;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -40,20 +41,15 @@ class ProjectInitSeeder extends Seeder
     private function getRolePermissions() 
     {
         $permissions = [
-            'user' => [
-                'User: View List',
-                'User: Create',
-                'User: Edit User',
-                'User: Delete User',
-            ],
-            'document' => [
+            'Document' => [
                 'Document: View List',
+                'Document: Preview',
                 'Document: Create',
                 'Document: Edit',
                 'Document: Delete',
                 'Document: Download',
             ],
-            'settings' => [
+            'Settings' => [
                 'Settings: View Tenant Settings',
                 'Settings: Edit Tenant Settings',
                 'Settings: View Tenant Customization',
@@ -65,14 +61,26 @@ class ProjectInitSeeder extends Seeder
                 'Settings: View Changelogs',
                 'Settings: View Profile',
                 'Settings: Edit Profile',
-            ]
+            ],
+            'User' => [
+                'User: View List',
+                'User: Create',
+                'User: Edit User',
+                'User: Delete User',
+            ],
+            'Role' => [
+                'Role: View List',
+                'Role: Create',
+                'Role: Edit User',
+                'Role: Delete User',
+            ],
         ];
 
         $rolePermissions = [
-            UserRole::Superadmin => $permissions,
-            UserRole::Admin      => $permissions,
-            UserRole::Encoder    => [
-                'document' => [
+            UserLevel::Superadmin => $permissions,
+            UserLevel::Admin      => $permissions,
+            UserLevel::Regular    => [
+                'Document' => [
                     'Document: View List',
                     'Document: Create',
                     'Document: Edit',
@@ -87,8 +95,14 @@ class ProjectInitSeeder extends Seeder
     private function createRolePermissions($rolePermissions)
     {
         $createdPermissions = [];
+        $tenant = Tenant::first();
+
         foreach ($rolePermissions as $roleName => $permissionModules) {
-            $role = Role::create(['name' => $roleName]);
+            $role = Role::create([
+                'name' => $roleName,
+                'guard_name' => 'web',
+                'tenant_id' => $tenant->id,
+            ]);
 
             $permissions = [];
 
