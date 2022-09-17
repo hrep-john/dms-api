@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\UserRole;
+use App\Enums\UserLevel;
 use App\Helpers\ApiErrorResponse;
 use App\Http\Requests\LoginUser;
 use App\Http\Requests\ResetPassword;
@@ -228,7 +228,7 @@ class AuthController extends Controller
             $user = auth()->user();
             $tenantDomain = \App\Helpers\tenantDomain();
 
-            if (!$user || in_array(UserRole::Superadmin, $user->user_roles->toArray())) {
+            if (!$user || $user->user_level === UserLevel::Superadmin) {
                 $flag = true;
             }
 

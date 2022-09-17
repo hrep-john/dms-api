@@ -6,7 +6,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RoleResource extends JsonResource
+class RoleFullResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,8 +19,10 @@ class RoleResource extends JsonResource
         return [
             'id'                => $this->id,
             'name'              => $this->name,
-            'total_permissions' => $this->permissions->count(),
+            'permissions'       => $this->getAllPermissions()->pluck('name'),
+            'created_at'        => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
             'updated_at'        => Carbon::parse($this->updated_at)->format('Y-m-d H:i:s'),
+            'created_by'        => User::find($this->created_by)->userInfo->full_name ?? '',
             'updated_by'        => User::find($this->updated_by)->userInfo->full_name ?? '',
         ];
     }
