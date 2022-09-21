@@ -26,16 +26,14 @@ class CustomReportService extends BaseService implements CustomReportServiceInte
         parent::__construct($model);
     }
 
-    public function report($attributes)
+    public function report(ReportBuilder $template, Array $filters)
     {
-        $template = $this->model->where('slug', $attributes['slug'])->first();
-        $query = JSON_DECODE($template->format)->query;
-        Logger(JSON_ENCODE($query));
-        $result = $this->build($query, [])->get();
-        Logger($result);
+        $template = JSON_DECODE(JSON_DECODE($template->format)->query);
+        $builder = $this->build($template, []);
 
-        // Logger($template);
-        return $result;
+        $perPage = request()->get('per_page', 10);
+
+        return $builder->paginate($perPage);
     }
 
     public function build($querySet, $filters)

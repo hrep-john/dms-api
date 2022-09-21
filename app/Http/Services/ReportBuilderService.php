@@ -18,6 +18,11 @@ class ReportBuilderService extends BaseService implements ReportBuilderServiceIn
         parent::__construct($model);
     }
 
+    public function getTemplateBySlug(string $slug) 
+    {
+        return $this->model->where('slug', $slug)->first();
+    }
+
     protected function formatAttributes($attributes): array
     {
         $attributes['slug'] = Str::slug($attributes['name']);

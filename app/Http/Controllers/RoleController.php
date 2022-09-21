@@ -96,6 +96,7 @@ class RoleController extends Controller
 
         return $this->success([
             'result' => new FullResource($result),
+            'auth_user_permissions' => auth()->user()->user_permissions,
             'message' => Lang::get('success.updated')
         ], Response::HTTP_OK);
     }

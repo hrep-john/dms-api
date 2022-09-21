@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use ApiErrorResponse;
+use App;
 use App\Models\ReportBuilder as MainModel;
 use App\Http\Resources\ReportBuilderResource as BasicResource;
 use App\Http\Services\Contracts\CustomReportServiceInterface;
 use App\Http\Requests\CustomReport\ShowRequest;
+use App\Http\Services\Contracts\ReportBuilderServiceInterface;
 use App\Traits\ApiResponder;
 use Exception;
 use Lang;
@@ -30,21 +32,26 @@ class CustomReportController extends Controller
      * @param  MainModel  $reportBuilder
      * @return BasicResource
      */
-    public function report(ShowRequest $request, $slug)
+    public function report(ShowRequest $request, string $slug)
     {
         try {
             $attributes = $request->validated();
-            $attributes['slug'] = $slug;
-            $result = $this->service->report($attributes);
+            $template = App::make(ReportBuilderServiceInterface::class)->getTemplateBySlug($slug);
+            $filters = $attributes['filters'] ?? [];
+
+            $results = $this->service->report($template, $filters);
+            $results->data = $results;
+            $results = $this->paginate($results);
         } catch (Exception $e) {
-            Logger($e);
-            $this->throwError(Lang::get('error.update.failed'), json_decode($e), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.update.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
         return $this->success([
-            // 'result' => new BasicResource($result),
-            'result' => $result,
-            'message' => Lang::get('success.updated')
+            'results' => [
+                'info' => $template,
+                'data' => $results['data'],
+                'meta' => $results['meta'],
+            ]
         ], Response::HTTP_OK);
     }
 }
