@@ -43,7 +43,7 @@ class AdminUserSeeder extends Seeder
             'password' => Hash::make($password)
         ]);
 
-        $user->userInfo()->create([
+        $user->user_info()->create([
             'first_name' => 'superadmin',
             'last_name' => 'dms',
             'tenant_id' => $tenant->id
@@ -64,7 +64,7 @@ class AdminUserSeeder extends Seeder
             'password' => Hash::make($password)
         ]);
 
-        $user->userInfo()->create([
+        $user->user_info()->create([
             'first_name' => 'admin',
             'last_name' => 'dms',
             'tenant_id' => $tenant->id

@@ -21,7 +21,7 @@ class RoleResource extends JsonResource
             'name'              => $this->name,
             'total_permissions' => $this->permissions->count(),
             'updated_at'        => Carbon::parse($this->updated_at)->format('Y-m-d H:i:s'),
-            'updated_by'        => User::find($this->updated_by)->userInfo->full_name ?? '',
+            'updated_by'        => User::find($this->updated_by)->user_info->full_name ?? '',
         ];
     }
 }

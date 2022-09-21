@@ -21,6 +21,7 @@ class ReportBuilderService extends BaseService implements ReportBuilderServiceIn
     protected function formatAttributes($attributes): array
     {
         $attributes['slug'] = Str::slug($attributes['name']);
+        $attributes['tenant_id'] = \App\Helpers\tenant();
 
         return $attributes;
     }

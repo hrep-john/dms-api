@@ -50,6 +50,7 @@ class ReportBuilderController extends Controller
         try {
             $result = $this->service->store($request->validated());
         } catch (Exception $e) {
+            Logger($e);
             $this->throwError(Lang::get('error.save.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
@@ -86,7 +87,6 @@ class ReportBuilderController extends Controller
         try {
             $result = $this->service->update($request->validated(), $reportBuilder);
         } catch (Exception $e) {
-            Logger($e);
             $this->throwError(Lang::get('error.update.failed'), json_decode($e), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 

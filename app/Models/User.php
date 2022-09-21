@@ -74,7 +74,7 @@ use Storage;
  * @method static \Illuminate\Database\Eloquent\Builder|User whereHomeAddress($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereRegion($value)
- * @property-read UserInfo|null $userInfo
+ * @property-read UserInfo|null $user_info
  */
 class User extends Authenticatable implements Auditable
 {
@@ -87,6 +87,7 @@ class User extends Authenticatable implements Auditable
      * @var string[]
      */
     protected $fillable = [
+        'user_level',
         'username',
         'email',
         'password',
@@ -108,14 +109,14 @@ class User extends Authenticatable implements Auditable
      *
      * @var string[]
      */
-    protected $with = ['userInfo'];
+    protected $with = ['user_info'];
 
     /**
      * Every User model has exactly one UserInfo
      *
      * @return HasOne
      */
-    public function userInfo()
+    public function user_info()
     {
         return $this->hasOne(UserInfo::class);
     }
@@ -127,22 +128,22 @@ class User extends Authenticatable implements Auditable
      */
     public function flattenUserInfo()
     {
-        $userInfo = $this->userInfo;
-        unset($this->userInfo);
+        $info = $this->user_info;
+        unset($this->user_info);
 
-        $this->first_name =  $userInfo->first_name;
-        $this->last_name =  $userInfo->last_name;
-        $this->middle_name =  $userInfo->middle_name;
-        $this->mobile_number =  $userInfo->mobile_number;
-        $this->sex =  $userInfo->sex;
-        $this->birthday =  $userInfo->birthday;
-        $this->profile_picture_url =  $userInfo->profile_picture_url ?? '';
-        $this->home_address =  $userInfo->home_address;
-        $this->barangay =  $userInfo->barangay;
-        $this->city =  $userInfo->city;
-        $this->region =  $userInfo->region;
-        $this->tenant_id =  $userInfo->tenant_id;
-        $this->tenant_name = $userInfo->tenant->name ?? '';
+        $this->first_name =  $info->first_name;
+        $this->last_name =  $info->last_name;
+        $this->middle_name =  $info->middle_name;
+        $this->mobile_number =  $info->mobile_number;
+        $this->sex =  $info->sex;
+        $this->birthday =  $info->birthday;
+        $this->profile_picture_url =  $info->profile_picture_url ?? '';
+        $this->home_address =  $info->home_address;
+        $this->barangay =  $info->barangay;
+        $this->city =  $info->city;
+        $this->region =  $info->region;
+        $this->tenant_id =  $info->tenant_id;
+        $this->tenant_name = $info->tenant->name ?? '';
 
         return $this;
     }
@@ -150,19 +151,19 @@ class User extends Authenticatable implements Auditable
     public function getUserInfosAttribute() 
     {
         return [
-            'first_name' => $this->userInfo->first_name ?? null,
-            'last_name' => $this->userInfo->last_name ?? null,
-            'middle_name' => $this->userInfo->middle_name ?? null,
-            'mobile_number' => $this->userInfo->mobile_number ?? null,
-            'sex' => $this->userInfo->sex ?? null,
-            'birthday' => $this->userInfo->birthday ?? null,
-            'profile_picture_url' => $this->userInfo->profile_picture_url ?? null,
-            'home_address' => $this->userInfo->home_address ?? null,
-            'barangay' => $this->userInfo->barangay ?? null,
-            'city' => $this->userInfo->city ?? null,
-            'region' => $this->userInfo->region ?? null,
-            'tenant_id' => $this->userInfo->tenant_id ?? null,
-            'tenant_name' => $this->userInfo->tenant->name ?? null,
+            'first_name' => $this->user_info->first_name ?? null,
+            'last_name' => $this->user_info->last_name ?? null,
+            'middle_name' => $this->user_info->middle_name ?? null,
+            'mobile_number' => $this->user_info->mobile_number ?? null,
+            'sex' => $this->user_info->sex ?? null,
+            'birthday' => $this->user_info->birthday ?? null,
+            'profile_picture_url' => $this->user_info->profile_picture_url ?? null,
+            'home_address' => $this->user_info->home_address ?? null,
+            'barangay' => $this->user_info->barangay ?? null,
+            'city' => $this->user_info->city ?? null,
+            'region' => $this->user_info->region ?? null,
+            'tenant_id' => $this->user_info->tenant_id ?? null,
+            'tenant_name' => $this->user_info->tenant->name ?? null,
         ];
     }
 
@@ -182,12 +183,12 @@ class User extends Authenticatable implements Auditable
 
     public function getFormattedCreatedByAttribute()
     {
-        return User::find($this->created_by)->userInfo->full_name ?? '';
+        return User::find($this->created_by)->user_info->full_name ?? '';
     }
 
     public function getFormattedUpdatedByAttribute()
     {
-        return User::find($this->updated_by)->userInfo->full_name ?? '';
+        return User::find($this->updated_by)->user_info->full_name ?? '';
     }
 
     public function getFormattedCreatedAtAttribute()
@@ -198,5 +199,16 @@ class User extends Authenticatable implements Auditable
     public function getFormattedUpdatedAtAttribute()
     {
         return Carbon::parse($this->updated_at)->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * Scope a query to only include regular users.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return void
+     */
+    public function scopeRegular($query)
+    {
+        $query->where('user_level', 'regular');
     }
 }

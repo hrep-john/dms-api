@@ -22,8 +22,8 @@ class RoleFullResource extends JsonResource
             'permissions'       => $this->getAllPermissions()->pluck('name'),
             'created_at'        => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
             'updated_at'        => Carbon::parse($this->updated_at)->format('Y-m-d H:i:s'),
-            'created_by'        => User::find($this->created_by)->userInfo->full_name ?? '',
-            'updated_by'        => User::find($this->updated_by)->userInfo->full_name ?? '',
+            'created_by'        => User::find($this->created_by)->user_info->full_name ?? '',
+            'updated_by'        => User::find($this->updated_by)->user_info->full_name ?? '',
         ];
     }
 }

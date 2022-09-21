@@ -36,7 +36,7 @@ class AuthController extends Controller
     {
         $request['password'] = Hash::make($request['password']);
         $newUser = User::create($request->only('email', 'password'));
-        $newUser->userInfo()->create($request->except('email', 'password', 'password_confirmation'));
+        $newUser->user_info()->create($request->except('email', 'password', 'password_confirmation'));
 
         // Re-assignment to run eager loading of user_info
         $newUser = User::find($newUser->id);
@@ -132,7 +132,7 @@ class AuthController extends Controller
             ['token' => $token, 'created_at' => Carbon::now()]
         );
 
-        $tenantDomain = $user->userInfo->tenant->domain ?? env('SPA_RESET_PASSWORD_URL');
+        $tenantDomain = $user->user_info->tenant->domain ?? env('SPA_RESET_PASSWORD_URL');
         $tenantDomain = Str::startsWith($tenantDomain, ['https://', 'http://']) ? $tenantDomain : sprintf('%s%s', 'http://', $tenantDomain);
         $reset_pass_link = sprintf('%s/auth/reset-password?token=%s&username=%s', $tenantDomain, $token, $user->username);
 
@@ -232,7 +232,7 @@ class AuthController extends Controller
                 $flag = true;
             }
 
-            if (Str::lower(Auth::user()->userInfo->tenant->domain) === Str::lower($tenantDomain)) {
+            if (Str::lower(Auth::user()->user_info->tenant->domain) === Str::lower($tenantDomain)) {
                 $flag = true;
             }
         }

@@ -5,6 +5,7 @@ namespace App\Models;
 class ReportBuilder extends BaseModel
 {
     protected $fillable = [
+        'tenant_id',
         'module',
         'name',
         'slug',
@@ -20,4 +21,9 @@ class ReportBuilder extends BaseModel
     protected $casts = [
         'format' => 'json',
     ];
+
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
+    }
 }

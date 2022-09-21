@@ -15,6 +15,7 @@ class CreateReportBuildersTable extends Migration
     {
         Schema::create('report_builders', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('tenant_id');
             $table->string('module');
             $table->string('name');
             $table->string('slug');
@@ -25,6 +26,7 @@ class CreateReportBuildersTable extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('updated_by')->references('id')->on('users')->onDelete('cascade');
         });
@@ -38,6 +40,7 @@ class CreateReportBuildersTable extends Migration
     public function down()
     {
         Schema::table('report_builders', function (Blueprint $table) {
+            $table->dropForeign('report_builders_tenant_id_foreign');
             $table->dropForeign('report_builders_created_by_foreign');
             $table->dropForeign('report_builders_updated_by_foreign');
         });

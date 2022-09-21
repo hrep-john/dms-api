@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use ApiErrorResponse;
-use Spatie\Permission\Models\Role as MainModel;
+use App\Models\Role as MainModel;
 use App\Http\Resources\RoleResource as BasicResource;
 use App\Http\Resources\RoleListResource as RoleListResource;
 use App\Http\Resources\PermissionListResource as PermissionListResource;
@@ -46,7 +46,7 @@ class RoleController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  StoreRequest  $request
-     * @return BasicResource
+     * @return FullResource
      */
     public function store(StoreRequest $request)
     {
@@ -57,7 +57,7 @@ class RoleController extends Controller
         }
 
         return $this->success([
-            'result' => new BasicResource($result),
+            'result' => new FullResource($result),
             'message' => Lang::get('success.created')
         ], Response::HTTP_CREATED);
     }
@@ -66,7 +66,7 @@ class RoleController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return BasicResource
+     * @return FullResource
      */
     public function show(int $id)
     {
@@ -84,7 +84,7 @@ class RoleController extends Controller
      *
      * @param  UpdateRequest  $request
      * @param  MainModel  $role
-     * @return BasicResource
+     * @return FullResource
      */
     public function update(UpdateRequest $request, MainModel $role)
     {
@@ -95,7 +95,7 @@ class RoleController extends Controller
         }
 
         return $this->success([
-            'result' => new BasicResource($result),
+            'result' => new FullResource($result),
             'message' => Lang::get('success.updated')
         ], Response::HTTP_OK);
     }
