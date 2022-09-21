@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\ReportBuilder;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -36,6 +37,7 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->configureRateLimiting();
+        $this->configureRouteModelBinding();
 
         $this->routes(function () {
             Route::prefix('api')
@@ -59,5 +61,15 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
         });
+    }
+
+    /**
+     * Configure the route model binding for the application.
+     *
+     * @return void
+     */
+    protected function configureRouteModelBinding()
+    {
+        Route::model('report_builder', ReportBuilder::class);
     }
 }

@@ -31,3 +31,9 @@ Route::middleware('auth:sanctum')->group(base_path('routes/api_routes/user.php')
 
 /** Roles Routes */
 Route::middleware('auth:sanctum')->group(base_path('routes/api_routes/role.php'));
+
+/** Report Builders Routes */
+Route::middleware('auth:sanctum')->group(base_path('routes/api_routes/report_builder.php'));
+
+/** Custom Report Routes */
+Route::middleware('auth:sanctum')->group(base_path('routes/api_routes/custom_report.php'));

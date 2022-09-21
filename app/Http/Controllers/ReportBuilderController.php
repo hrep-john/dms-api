@@ -3,26 +3,23 @@
 namespace App\Http\Controllers;
 
 use ApiErrorResponse;
-use App\Models\Role as MainModel;
-use App\Http\Resources\RoleResource as BasicResource;
-use App\Http\Resources\RoleListResource as RoleListResource;
-use App\Http\Resources\PermissionListResource as PermissionListResource;
-use App\Http\Services\Contracts\RoleServiceInterface;
-use App\Http\Requests\Role\StoreRequest;
-use App\Http\Requests\Role\UpdateRequest;
-use App\Http\Resources\RoleFullResource as FullResource;
+use App\Models\ReportBuilder as MainModel;
+use App\Http\Resources\ReportBuilderResource as BasicResource;
+use App\Http\Services\Contracts\ReportBuilderServiceInterface;
+use App\Http\Requests\ReportBuilder\StoreRequest;
+use App\Http\Requests\ReportBuilder\UpdateRequest;
 use App\Traits\ApiResponder;
 use Exception;
 use Lang;
 use Symfony\Component\HttpFoundation\Response;
 
-class RoleController extends Controller
+class ReportBuilderController extends Controller
 {
     use ApiResponder;
 
     protected $service;
 
-    public function __construct(RoleServiceInterface $service)
+    public function __construct(ReportBuilderServiceInterface $service)
     {
         $this->service = $service;
     }
@@ -46,18 +43,19 @@ class RoleController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  StoreRequest  $request
-     * @return FullResource
+     * @return BasicResource
      */
     public function store(StoreRequest $request)
     {
         try {
             $result = $this->service->store($request->validated());
         } catch (Exception $e) {
+            Logger($e);
             $this->throwError(Lang::get('error.save.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
         return $this->success([
-            'result' => new FullResource($result),
+            'result' => new BasicResource($result),
             'message' => Lang::get('success.created')
         ], Response::HTTP_CREATED);
     }
@@ -66,36 +64,34 @@ class RoleController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return FullResource
+     * @return BasicResource
      */
-    public function show(int $id)
+    public function show(MainModel $reportBuilder)
     {
-        $result = $this->service->find($id);
-
-        if (!$result) {
+        if (!$reportBuilder) {
             $this->throwError(Lang::get('error.show.failed'), NULL, Response::HTTP_NOT_FOUND, ApiErrorResponse::UNKNOWN_ROUTE_CODE);
         }
 
-        return $this->success(['result' => new FullResource($result)], Response::HTTP_OK);
+        return $this->success(['result' => new BasicResource($reportBuilder)], Response::HTTP_OK);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  UpdateRequest  $request
-     * @param  MainModel  $role
-     * @return FullResource
+     * @param  MainModel  $reportBuilder
+     * @return BasicResource
      */
-    public function update(UpdateRequest $request, MainModel $role)
+    public function update(UpdateRequest $request, MainModel $reportBuilder)
     {
         try {
-            $result = $this->service->update($request->validated(), $role);
+            $result = $this->service->update($request->validated(), $reportBuilder);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.update.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.update.failed'), json_decode($e), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
         return $this->success([
-            'result' => new FullResource($result),
+            'result' => new BasicResource($result),
             'message' => Lang::get('success.updated')
         ], Response::HTTP_OK);
     }
@@ -103,45 +99,17 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  MainModel  $role
+     * @param  MainModel  $reportBuilder
      * @return \Illuminate\Http\Response
      */
-    public function destroy(MainModel $role)
+    public function destroy(MainModel $reportBuilder)
     {
         try {
-            $this->service->delete($role);
+            $this->service->delete($reportBuilder);
         } catch (Exception $e) {
             $this->throwError(Lang::get('error.delete.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
         return $this->success(null, Response::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * Display all listing of the resource.
-     *
-     * @return RoleListResource
-     */
-    public function list()
-    {
-        $results = $this->service->all();
-
-        return $this->success([
-            'results' => RoleListResource::collection($results)
-        ], Response::HTTP_OK);
-    }
-
-    /**
-     * Display all permission listing of the resource.
-     *
-     * @return PermissionListResource
-     */
-    public function permissionList()
-    {
-        $results = $this->service->permissionList();
-
-        return $this->success([
-            'results' => $results
-        ], Response::HTTP_OK);
     }
 }

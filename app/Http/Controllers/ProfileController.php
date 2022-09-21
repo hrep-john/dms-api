@@ -42,7 +42,7 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         $user->update($request->only('email'));
-        $user->userInfo()->update($request->except('email'));
+        $user->user_info()->update($request->except('email'));
 
         // Re-assignment to run eager loading of user_info
         $user = User::find($user->id);

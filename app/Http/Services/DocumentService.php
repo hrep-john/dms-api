@@ -287,7 +287,7 @@ class DocumentService extends BaseService implements DocumentServiceInterface
 
     private function getMappings($document) 
     {
-        $tenant = auth()->user()->userInfo->tenant;
+        $tenant = auth()->user()->user_info->tenant;
         $settings = $tenant->settings;
 
         $prefix = $settings->where('key', 'tenant.document.series.id.prefix')->first()->value;

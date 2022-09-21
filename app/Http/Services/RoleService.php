@@ -3,10 +3,10 @@
 namespace App\Http\Services;
 
 use App\Http\Services\Contracts\RoleServiceInterface;
-use Arr;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use App\Models\Role;
+use Illuminate\Database\Eloquent\Builder;
 
 class RoleService extends BaseService implements RoleServiceInterface
 {
@@ -45,6 +45,28 @@ class RoleService extends BaseService implements RoleServiceInterface
         });
     }
 
+    /**
+    * @param array $attributes
+    * @param int $id
+    *
+    * @return Model
+    */
+    public function update(array $attributes, Model $model): Model
+    {
+        $that = $this;
+
+        $newAttributes = array_merge($this->formatAttributes($attributes), [
+            'updated_by' => auth()->user()->id,
+        ]);
+
+        return $this->transaction(function() use ($attributes, $newAttributes, $model, $that) {
+            $model->update($newAttributes);
+            $that->afterUpdated($model, $attributes);
+
+            return $model;
+        });
+    }
+
     public function permissionList()
     {
         $permissions = $this->permissionModel->all();
@@ -80,5 +102,10 @@ class RoleService extends BaseService implements RoleServiceInterface
     protected function afterUpdated($model, $attributes): void
     {
         $model->syncPermissions($attributes['permissions']);
+    }
+
+    protected function beforeFiltering($model)
+    {
+        return $model->nonAdmin();
     }
 }

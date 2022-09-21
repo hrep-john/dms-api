@@ -25,8 +25,8 @@ class AuditLogBasicResource extends JsonResource
             'time'                          => Carbon::parse($this->updated_at)->format('g:i A'),
             'event'                         => $this->event,
             'filename'                      => Document::find(request('id'))->file_name,
-            'full_name'                     => $this->user->userInfo->full_name,
-            'profile_picture_url'           => $this->user->userInfo->profile_picture_url ?? '',
+            'full_name'                     => $this->user->user_info->full_name,
+            'profile_picture_url'           => $this->user->user_info->profile_picture_url ?? '',
             'changes'                       => $this->getDiffTwoArrays($this->old_values['user_defined_field'] ?? '', $this->new_values['user_defined_field'] ?? '')
         ];
     }
@@ -91,7 +91,7 @@ class AuditLogBasicResource extends JsonResource
         if ($source === 'users') {
             if (!is_null($value)) {
                 $model = User::find($value);
-                $label = $model->userInfo->full_name;
+                $label = $model->user_info->full_name;
             }
         } else if ($source === 'custom' && Str::isUuid($value)) {
             $data = $this->getUdfByUuid($udfSettings);

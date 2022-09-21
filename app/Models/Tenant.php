@@ -15,7 +15,7 @@ class Tenant extends BaseModel
         'deleted_at'
     ];
 
-    public function userInfo()
+    public function user_info()
     {
         return $this->belongsToMany(UserInfo::class);
     }
@@ -28,5 +28,10 @@ class Tenant extends BaseModel
     public function settings()
     {
         return $this->hasMany(TenantSetting::class);
+    }
+
+    public function custom_reports()
+    {
+        return $this->hasMany(ReportBuilder::class);
     }
 }

@@ -25,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(\App\Http\Services\Contracts\TenantServiceInterface::class, \App\Http\Services\TenantService::class);
         $this->app->bind(\App\Http\Services\Contracts\TenantSettingServiceInterface::class, \App\Http\Services\TenantSettingService::class);
         $this->app->bind(\App\Http\Services\Contracts\RoleServiceInterface::class, \App\Http\Services\RoleService::class);
+        $this->app->bind(\App\Http\Services\Contracts\ReportBuilderServiceInterface::class, \App\Http\Services\ReportBuilderService::class);
+        $this->app->bind(\App\Http\Services\Contracts\CustomReportServiceInterface::class, \App\Http\Services\CustomReportService::class);
     }
 
     /**
