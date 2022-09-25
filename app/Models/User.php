@@ -121,6 +121,11 @@ class User extends Authenticatable implements Auditable
         return $this->hasOne(UserInfo::class);
     }
 
+    public function documents()
+    {
+        return $this->belongsToMany(Document::class);
+    }
+
     /**
      * Move the user_info fields to the root node (User).
      * Only used when adding the model to a response

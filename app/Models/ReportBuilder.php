@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\FilterByTenant;
+
 class ReportBuilder extends BaseModel
 {
+    use FilterByTenant;
+
     protected $fillable = [
         'tenant_id',
         'module',

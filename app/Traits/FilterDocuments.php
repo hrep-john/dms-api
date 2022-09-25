@@ -4,9 +4,9 @@ namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
 
-trait FilterDocumentsByTenant
+trait FilterDocuments
 {
-    protected static function bootFilterDocumentsByTenant()
+    protected static function boot()
     {
         parent::boot();
 
@@ -21,9 +21,13 @@ trait FilterDocumentsByTenant
         });
 
         self::addGlobalScope(function(Builder $builder) {
-            $builder->whereHas('userAccess', function (Builder $query) {
-                return $query->where('user_id', auth()->user()->id);
-            });
+            $userId = auth()->user()->id ?? null;
+
+            if (!is_null($userId)) {
+                $builder->whereHas('userAccess', function (Builder $query) use ($userId) {
+                    return $query->where('user_id', $userId);
+                });
+            }
         });
     }
 }

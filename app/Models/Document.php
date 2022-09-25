@@ -5,7 +5,7 @@ namespace App\Models;
 use App;
 use App\Http\Services\Contracts\UserDefinedFieldServiceInterface;
 use App\Http\Services\Contracts\UserServiceInterface;
-use App\Traits\FilterDocumentsByTenant;
+use App\Traits\FilterDocuments;
 use Arr;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Scout\Searchable;
@@ -16,19 +16,21 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Document extends BaseModel implements HasMedia
 {
-    use HasFactory, Searchable, FilterDocumentsByTenant, InteractsWithMedia;
+    use HasFactory, Searchable, FilterDocuments, InteractsWithMedia;
 
     protected $fillable = [
         'folder_id',
         'series_id',
         'file_name',
         'user_defined_field',
+        'allow_user_access',
         'created_by',
         'updated_by',
     ];
 
     protected $casts = [
-        'user_defined_field' => 'string',
+        'user_defined_field'    => 'string',
+        'allow_user_access'     => 'boolean',
     ];
 
     protected $appends = [
@@ -38,6 +40,7 @@ class Document extends BaseModel implements HasMedia
         'tenant_id',
         'formatted_updated_at',
         'formatted_detail_metadata',
+        'user_access',
     ];
 
     public $asYouType = true;
@@ -63,6 +66,7 @@ class Document extends BaseModel implements HasMedia
                 'file_name',
                 'file_extension',
                 'file_size',
+                'user_access'
             ]);
         }
     }
@@ -70,6 +74,11 @@ class Document extends BaseModel implements HasMedia
     public function folder()
     {
         return $this->belongsTo(Folder::class);
+    }
+
+    public function userAccess()
+    {
+        return $this->belongsToMany(User::class)->withTimestamps();
     }
 
     public function detailMetadata()
@@ -124,6 +133,11 @@ class Document extends BaseModel implements HasMedia
     public function getTenantIdAttribute() 
     {
         return $this->folder->tenant_id ?? '';
+    }
+
+    public function getUserAccessAttribute() 
+    {
+        return $this->userAccess()->pluck('users.id');
     }
 
     private function getUdfCustomLabel($settings, $value) 

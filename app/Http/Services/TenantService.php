@@ -74,7 +74,7 @@ class TenantService extends BaseService implements TenantServiceInterface
 
     private function createTenantAdmin($model) 
     {
-        $username = 'admin';
+        $username = 'tenant-admin';
         $email = 'admin@dms.com';
         $password = '@DMIN+';
 

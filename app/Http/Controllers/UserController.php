@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource as BasicResource;
 use App\Http\Services\Contracts\UserServiceInterface;
 use App\Http\Requests\User\StoreRequest;
 use App\Http\Requests\User\UpdateRequest;
+use App\Http\Resources\UserListResource;
 use App\Traits\ApiResponder;
 use Exception;
 use Lang;
@@ -112,5 +113,19 @@ class UserController extends Controller
         }
 
         return $this->success(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Display all listing of the resource.
+     *
+     * @return RoleListResource
+     */
+    public function list()
+    {
+        $results = $this->service->all();
+
+        return $this->success([
+            'results' => UserListResource::collection($results)
+        ], Response::HTTP_OK);
     }
 }

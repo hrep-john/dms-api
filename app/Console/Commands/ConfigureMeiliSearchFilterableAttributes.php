@@ -82,6 +82,7 @@ class ConfigureMeiliSearchFilterableAttributes extends Command
                     'file_size',
                     'formatted_updated_at',
                     'formatted_detail_metadata',
+                    'user_access'
                 ],
                 'sort' => [
                     'formatted_updated_at', 

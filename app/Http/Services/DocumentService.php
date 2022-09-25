@@ -7,6 +7,7 @@ use App\Enums\ExtractableOcr;
 use App\Http\Resources\DocumentBasicResource;
 use App\Http\Services\Contracts\DocumentServiceInterface;
 use App\Http\Services\Contracts\TenantSettingServiceInterface;
+use App\Http\Services\Contracts\UserServiceInterface;
 use App\Jobs\ExtractDocument;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Document;
@@ -64,7 +65,7 @@ class DocumentService extends BaseService implements DocumentServiceInterface
 
         $builder = $this->model->search($q, function(Indexes $meiliSearch, string $query, array $options) use ($filter, $sort, $perPage, $page) {
             if ($filter) {
-                $options['filter'] = $filter;
+            $options['filter'] = $filter;
             }
 
             if ($sort) {
@@ -134,6 +135,25 @@ class DocumentService extends BaseService implements DocumentServiceInterface
             'data' => DocumentBasicResource::collection($results),
             'meta' => $this->getMetaFromHits($builder)
         ];
+    }
+
+    public function recentlyAssignedDocuments() 
+    {
+        $builder = $this->model
+            ->select(
+                'documents.id',
+                'file_name',
+                'document_user.updated_at'    
+            )
+            ->join('document_user', function ($join) {
+                $join->on('document_user.document_id', 'documents.id');
+                $join->where('document_user.user_id', auth()->user()->id);
+            })
+            ->orderBy('document_user.created_at', 'desc');
+
+        $perPage = request()->get('per_page', 10);
+
+        return $builder->paginate($perPage);
     }
 
     protected function getMetaFromHits($hits)
@@ -270,6 +290,28 @@ class DocumentService extends BaseService implements DocumentServiceInterface
     protected function afterStore($model, $attributes): void
     {
         App::make(TenantSettingServiceInterface::class)->incrementTenantDocumentSeriesId(1);
+
+        $users = App::make(UserServiceInterface::class)->getSuperAdminUsers();
+
+        if (!in_array(auth()->user()->id, $users)) {
+            $users[] = auth()->user()->id;
+        }
+
+        $model->userAccess()->attach($users);
+    }
+
+    protected function afterUpdated($model, $attributes): void
+    {
+        $owner = [ $model->created_by ];
+        $superadmins = App::make(UserServiceInterface::class)->getSuperAdminUsers();
+        $users = $attributes['user_access'] ?? [];
+        $users = array_merge(
+            $owner,
+            $superadmins, 
+            $users
+        );
+
+        $model->userAccess()->sync($users);
     }
 
     protected function afterDelete($model): void

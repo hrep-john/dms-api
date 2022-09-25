@@ -62,7 +62,7 @@ class CustomReportService extends BaseService implements CustomReportServiceInte
             $subBuilder = $this->query($querySet->table);
             $builder = $this->createSubQuery($subBuilder);
         } else {
-            $builder = $this->buildTable($querySet->table, $builder);
+            $builder = $this->buildTable($querySet->table, $querySet->variables ?? '', $builder);
         }
 
         $builder = $this->buildSelect($querySet->select ?? [], $builder);
@@ -89,9 +89,9 @@ class CustomReportService extends BaseService implements CustomReportServiceInte
         return $builder->select($select);
     }
 
-    private function buildTable($params, $builder) 
+    private function buildTable($table, $variables, $builder) 
     {
-        return $builder->from($params);
+        return $builder->from(DB::raw(sprintf('%s%s', $variables, $table)));
     }
 
     private function buildJoin($params, $builder) 
@@ -182,7 +182,7 @@ class CustomReportService extends BaseService implements CustomReportServiceInte
 
     private function buildOrderBy($params, $builder)
     {
-        if(!is_object($params) || count($params) === 0) {
+        if(!is_object($params) || count($params->columns) === 0) {
             return $builder;
         }
 
