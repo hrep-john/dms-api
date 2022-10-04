@@ -74,8 +74,8 @@ class Document extends BaseModel implements HasMedia
     public function transformAudit(array $data): array
     {
         if (Arr::has($data, 'new_values.user_defined_field')) {
-            $oldValues = JSON_DECODE($data['old_values']['user_defined_field'], true);
-            $newValues = JSON_DECODE($data['new_values']['user_defined_field'], true);
+            $oldValues = JSON_DECODE($data['old_values']['user_defined_field'] ?? '', true) ?? [];
+            $newValues = JSON_DECODE($data['new_values']['user_defined_field'] ?? '', true) ?? [];
             $diffNewValues = array_diff($newValues, $oldValues);
 
             if (count($diffNewValues) > 0) {
