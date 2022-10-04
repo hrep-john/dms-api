@@ -202,6 +202,15 @@ class DocumentService extends BaseService implements DocumentServiceInterface
         );
     }
 
+    public function preview(int $id)
+    {
+        $document = $this->find($id);
+
+        $this->writeDocumentAuditLog($document, 'viewed');
+
+        return $document;
+    }
+
     public function writeDocumentAuditLog($document, $event, $old = [], $new = [])
     {
         $document->auditEvent = $event;

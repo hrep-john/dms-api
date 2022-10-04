@@ -89,6 +89,8 @@ class DocumentController extends Controller
             $this->throwError(Lang::get('error.show.failed'), NULL, Response::HTTP_NOT_FOUND, ApiErrorResponse::UNKNOWN_ROUTE_CODE);
         }
 
+        $this->service->writeDocumentAuditLog($result, 'viewed');
+
         return $this->success(['result' => new DocumentFullResource($result)], Response::HTTP_OK);
     }
 
@@ -177,6 +179,16 @@ class DocumentController extends Controller
         return $this->success([
             'result' => $result,
             'message' => Lang::get('success.downloaded')
+        ], Response::HTTP_OK);
+    }
+
+    public function preview(Request $request)
+    {
+        $result = $this->service->preview($request->get('id'));
+
+        return $this->success([
+            'result' => $result,
+            'message' => Lang::get('success.viewed')
         ], Response::HTTP_OK);
     }
 

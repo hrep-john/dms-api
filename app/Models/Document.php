@@ -71,6 +71,28 @@ class Document extends BaseModel implements HasMedia
         }
     }
 
+    public function transformAudit(array $data): array
+    {
+        if (Arr::has($data, 'new_values.user_defined_field')) {
+            $oldValues = JSON_DECODE($data['old_values']['user_defined_field'], true);
+            $newValues = JSON_DECODE($data['new_values']['user_defined_field'], true);
+            $diffNewValues = array_diff($newValues, $oldValues);
+
+            if (count($diffNewValues) > 0) {
+                $keys = array_keys($diffNewValues);
+                $diffOldValues = Arr::only($oldValues, $keys);
+
+                $data['old_values']['user_defined_field'] = App::make(UserDefinedFieldServiceInterface::class)->formatUdfValues($diffOldValues);
+                $data['new_values']['user_defined_field'] = App::make(UserDefinedFieldServiceInterface::class)->formatUdfValues($diffNewValues);
+            } else {
+                $data['old_values']['user_defined_field'] = [];
+                $data['new_values']['user_defined_field'] = [];
+            }
+        }
+
+        return $data;
+    }
+
     public function folder()
     {
         return $this->belongsTo(Folder::class);
@@ -158,15 +180,15 @@ class Document extends BaseModel implements HasMedia
     {
         $udfs = App::make(UserDefinedFieldServiceInterface::class)->all(false);
 
-        $initialData = [];
+        $flattenData = [];
 
         $currentValue = JSON_DECODE($this->user_defined_field, true);
 
         foreach($udfs as $udf) {
-            $initialData[$udf->key] = $currentValue[$udf->key] ?? null;
+            $flattenData[$udf->key] = $currentValue[$udf->key] ?? null;
         }
 
-        return $initialData;
+        return $flattenData;
     }
 
     public function getLatestMediaAttribute()

@@ -140,7 +140,9 @@ class BaseService implements BaseServiceInterface
     */
     public function find($id): ?Model
     {
-        return $this->model->find($id);
+        $model = $this->model->find($id);
+
+        return $model;
     }
 
     /**
@@ -170,6 +172,11 @@ class BaseService implements BaseServiceInterface
     }
 
     protected function afterStore($model, $attributes): void
+    {
+        
+    }
+
+    protected function afterShown($model): void
     {
         
     }

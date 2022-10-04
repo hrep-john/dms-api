@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use ApiErrorResponse;
 use App\Models\ReportBuilder as MainModel;
-use App\Http\Resources\ReportBuilderResource as BasicResource;
+use App\Http\Resources\ReportBuilderBasicResource as BasicResource;
+use App\Http\Resources\ReportBuilderFullResource as FullResource;
 use App\Http\Services\Contracts\ReportBuilderServiceInterface;
 use App\Http\Requests\ReportBuilder\StoreRequest;
 use App\Http\Requests\ReportBuilder\UpdateRequest;
 use App\Traits\ApiResponder;
 use Exception;
+use Illuminate\Http\Request;
 use Lang;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -27,7 +29,7 @@ class ReportBuilderController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return BasicResource
+     * @return FullResource
      */
     public function index()
     {
@@ -43,7 +45,7 @@ class ReportBuilderController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  StoreRequest  $request
-     * @return BasicResource
+     * @return FullResource
      */
     public function store(StoreRequest $request)
     {
@@ -54,7 +56,7 @@ class ReportBuilderController extends Controller
         }
 
         return $this->success([
-            'result' => new BasicResource($result),
+            'result' => new FullResource($result),
             'message' => Lang::get('success.created')
         ], Response::HTTP_CREATED);
     }
@@ -63,7 +65,7 @@ class ReportBuilderController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return BasicResource
+     * @return FullResource
      */
     public function show(MainModel $reportBuilder)
     {
@@ -71,7 +73,7 @@ class ReportBuilderController extends Controller
             $this->throwError(Lang::get('error.show.failed'), NULL, Response::HTTP_NOT_FOUND, ApiErrorResponse::UNKNOWN_ROUTE_CODE);
         }
 
-        return $this->success(['result' => new BasicResource($reportBuilder)], Response::HTTP_OK);
+        return $this->success(['result' => new FullResource($reportBuilder)], Response::HTTP_OK);
     }
 
     /**
@@ -79,7 +81,7 @@ class ReportBuilderController extends Controller
      *
      * @param  UpdateRequest  $request
      * @param  MainModel  $reportBuilder
-     * @return BasicResource
+     * @return FullResource
      */
     public function update(UpdateRequest $request, MainModel $reportBuilder)
     {
@@ -90,7 +92,7 @@ class ReportBuilderController extends Controller
         }
 
         return $this->success([
-            'result' => new BasicResource($result),
+            'result' => new FullResource($result),
             'message' => Lang::get('success.updated')
         ], Response::HTTP_OK);
     }
@@ -110,5 +112,17 @@ class ReportBuilderController extends Controller
         }
 
         return $this->success(null, Response::HTTP_NO_CONTENT);
+    }
+
+    public function uploadFiles(Request $request, MainModel $reportBuilder)
+    {
+        try {
+            $file = $request->file('upload');
+            $result = $this->service->uploadFiles($reportBuilder, $file);
+        } catch (Exception $e) {
+            $this->throwError(Lang::get('error.upload.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+        }
+
+        return response()->json([ 'fileName' => 'your file name put here', 'uploaded' => true, 'url' => $result, ]);
     }
 }

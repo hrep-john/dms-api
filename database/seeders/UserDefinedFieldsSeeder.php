@@ -35,11 +35,13 @@ class UserDefinedFieldsSeeder extends Seeder
     private function generateUserDefinedFields($tenant) 
     {
         $fields = [
-            'document_number'       => UserDefinedFieldType::Number,
-            'subject'               => UserDefinedFieldType::Text,
-            'action'                => UserDefinedFieldType::Text,
-            'date_received_from'    => UserDefinedFieldType::Date,
-            'date_received_to'      => UserDefinedFieldType::Date
+            'doc_number'        => UserDefinedFieldType::Number,
+            'date_received'     => UserDefinedFieldType::Date,
+            'origin'            => UserDefinedFieldType::Text,
+            'text_as_filed'     => UserDefinedFieldType::Text,
+            'subject'           => UserDefinedFieldType::Text,
+            'action_taken'      => UserDefinedFieldType::Text,
+            'date_released'     => UserDefinedFieldType::Date
         ];
 
         foreach ($fields as $field => $type) {

@@ -75,6 +75,7 @@ class ConfigureMeiliSearchFilterableAttributes extends Command
             'documents' => [
                 'filter' => [
                     'id',
+                    'series_id',
                     'tenant_id',
                     'file_name',
                     'formatted_udfs',

@@ -6,6 +6,7 @@ use Arr;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use OwenIt\Auditing\Models\Audit;
+use Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -40,30 +41,11 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191); // Update defaultStringLength
 
         Audit::creating(function (Audit $model) {
-            if ($model->event === 'updated') {
-                if ($this->checkIfBothAreNoChanges($model->old_values, $model->new_values)) {
-                    return false;
-                }
+            if ($model->event === 'updated' && $model->old_values === $model->new_values) {
+                return false;
             }
+
+            $model->auditable_type = Str::after($model->auditable_type, 'App\\Models\\');
         });
-    }
-
-    private function checkIfBothAreNoChanges($oldValues, $newValues)
-    {
-        $flag = false;
-
-        foreach ($oldValues as $key => $oldValue) {
-            $newValue = $newValues[$key];
-
-            if (!Arr::exists($newValues, $key)) {
-                $flag = true;
-            }
-
-            if (JSON_DECODE($oldValue, true) == JSON_DECODE($newValue, true)) {
-                $flag = true;
-            }
-        }
-
-        return $flag;
     }
 }

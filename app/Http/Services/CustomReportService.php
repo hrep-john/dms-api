@@ -29,7 +29,7 @@ class CustomReportService extends BaseService implements CustomReportServiceInte
     public function report(ReportBuilder $template, Array $filters)
     {
         $template = JSON_DECODE(JSON_DECODE($template->format)->query);
-        $builder = $this->build($template, []);
+        $builder = $this->build($template, $filters);
 
         $perPage = request()->get('per_page', 10);
 
@@ -136,7 +136,8 @@ class CustomReportService extends BaseService implements CustomReportServiceInte
                 if(!in_array(strtolower($param->type), [
                     'and',
                     'or',
-                    'raw'
+                    'raw',
+                    'or_raw'
                 ])) {
                     throw new Exception('Where method doesn\'t exists.');
                 }
@@ -146,6 +147,8 @@ class CustomReportService extends BaseService implements CustomReportServiceInte
 
             if(!property_exists($param, 'operator') && $type == 'raw') {
                 $builder = $builder->whereRaw($param->column);
+            } else if(!property_exists($param, 'operator') && $type == 'or_raw') {
+                $builder = $builder->orWhereRaw($param->column);
             } else {
                 if (Str::contains('null', $param->operator)) {
                     $not = Str::contains('!', $param->operator);
@@ -218,18 +221,15 @@ class CustomReportService extends BaseService implements CustomReportServiceInte
      * @param $filterParams
      * @return Builder|mixed
      */
-    private function applyFilters($builder, $filterParams)
+    private function applyFilters($builder, $filters)
     {   
-        if(count($filterParams) > 0) {
-            foreach ($filterParams as $key => $filterParams) {
-                $filterParams = $this->rebuild((object) ($filterParams));
-                $filters = $this->populateFiltersByColumn($filterParams);
+        if(count($filters) > 0) {
+            foreach ($filters as $key => $filter) {
+                // $filter = $this->rebuild($filter);
+                // $filter = $this->populateFiltersByColumn($filter);
+                $filter = JSON_DECODE($filter, true);
 
-                if (count($filters) > 0) {
-                    foreach ($filters as $filter) {
-                        $builder = $this->applyWhereCondition($builder, $filter);
-                    }
-                }
+                $builder = $this->applyWhereCondition($builder, $filter);
             }
         }
 
@@ -240,21 +240,21 @@ class CustomReportService extends BaseService implements CustomReportServiceInte
     {
         $method = '';
 
-        if(Str::lower($filter->join) == 'and') {
+        if(Str::lower($filter['join']) == 'and') {
             $method = 'where';
-        } else if((Str::lower($filter->join) == 'or')) {
+        } else if((Str::lower($filter['join']) == 'or')) {
             $method = 'orWhere';
         }
 
-        if (Str::contains($filter->column, 'deleted_at')) {
-            $filter->operator = (int) $filter->value === Voided::Yes ? '<>' : '=';
-            $filter->value = null;
+        if (Str::contains($filter['field'], 'deleted_at')) {
+            $filter['operator'] = (int) $filter['value'] === Voided::Yes ? '<>' : '=';
+            $filter['value'] = null;
         }
 
         return call_user_func_array(array($builder, $method), array(
-            $filter->column,
-            $filter->operator,
-            $filter->value
+            $filter['field'],
+            $filter['operator'],
+            $filter['value']
         ));
     }
 

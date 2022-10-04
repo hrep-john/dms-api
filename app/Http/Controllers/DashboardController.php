@@ -25,8 +25,6 @@ class DashboardController extends Controller
     {
         $recentDocuments = App::make(DocumentServiceInterface::class)->paginate();
         $assignedDocuments = App::make(DocumentServiceInterface::class)->recentlyAssignedDocuments();
-        // Logger($assignedDocuments->toSql());
-        Logger($assignedDocuments);
 
         return $this->success([
             // 'total_documents' => App::make(DocumentServiceInterface::class)->totalCount(),

@@ -20,5 +20,6 @@ return [
     'save.failed' => 'Unable to save data. Please try again.',
     'show.failed' => 'Unable to find the specific data requested. Please try again.',
     'update.failed' => 'Unable to update data. Please try again.',
+    'upload.failed' => 'Unable to upload file. Please try again.',
 
 ];

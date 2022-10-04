@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 use App\Http\Services\Contracts\ReportBuilderServiceInterface;
 use App\Models\ReportBuilder;
+use Storage;
 use Str;
 
 class ReportBuilderService extends BaseService implements ReportBuilderServiceInterface
@@ -29,5 +30,18 @@ class ReportBuilderService extends BaseService implements ReportBuilderServiceIn
         $attributes['tenant_id'] = \App\Helpers\tenant();
 
         return $attributes;
+    }
+
+    public function uploadFiles($model, $file) 
+    {
+        $file = $model
+            ->addMedia($file)
+            ->toMediaCollection('printout-template');
+
+        return Storage::disk('s3')->temporaryUrl(  
+            $file->getPath(),
+            now()->addMinutes(1),
+            ['ResponseContentDisposition' => 'attachment']
+        );
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\DocumentEntityMetadataController;
 
 Route::post('documents/search', [DocumentController::class, 'search'])->name('documents.search');
 Route::post('documents/download', [DocumentController::class, 'download'])->name('documents.download');
+Route::post('documents/preview', [DocumentController::class, 'preview'])->name('documents.preview');
 Route::post('documents/bulk-delete', [DocumentController::class, 'bulkDestroy'])->name('documents.bulk-destoy');
 Route::delete('documents/revert', [DocumentController::class, 'revert'])->name('documents.revert');
 Route::get('documents/{id}/audit-logs', [DocumentController::class, 'documentAuditLogs'])->name('documents.audit.logs');
