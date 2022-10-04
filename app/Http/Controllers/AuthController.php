@@ -9,6 +9,7 @@ use App\Http\Requests\ResetPassword;
 use App\Http\Requests\ShowEmailAvailability;
 use App\Http\Requests\StoreForgotPassword;
 use App\Http\Requests\StoreUser;
+use App\Http\Resources\ReportBuilderSidebarResource;
 use App\Mail\PasswordReset;
 use App\Mail\PasswordResetOtp;
 use App\Models\User;
@@ -69,16 +70,19 @@ class AuthController extends Controller
             $this->throwError(Lang::get('validation.invalid.user.id.password'), NULL, Response::HTTP_UNAUTHORIZED, ApiErrorResponse::INVALID_CREDENTIALS_CODE);
         }
 
-        $token = Auth::user()->createToken('api_token')->plainTextToken;
+        $user = Auth::user();
+        $token = $user->createToken('api_token')->plainTextToken;
         $type = 'Bearer';
 
-        $roles = Auth::user()->user_roles;
-        $permissions = Auth::user()->user_permissions;
+        $roles = $user->user_roles;
+        $permissions = $user->user_permissions;
+        $customReports = $user->user_info->tenant->custom_reports;
 
         return $this->success([
-            'user' => Auth::user()->flattenUserInfo(), 
+            'user' => $user->flattenUserInfo(), 
             'roles' => $roles,
             'permissions' => $permissions,
+            'custom_reports' => ReportBuilderSidebarResource::collection($customReports),
             'access_token' => $token, 
             'token_type' => $type
         ], Response::HTTP_OK);

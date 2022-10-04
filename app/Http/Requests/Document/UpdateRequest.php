@@ -24,7 +24,10 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'user_defined_field' => ['required']
+            'user_defined_field' => ['required'],
+            'allow_user_access' => ['required', 'boolean'],
+            'user_access' => ['array'],
+            'user_access.*' => ['required', 'exists:users,id'],
         ];
     }
 }

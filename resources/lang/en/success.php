@@ -22,6 +22,7 @@ return [
     'extracted' => 'Extracted successfully.',
     'inserted' => 'Inserted successfully.',
     'password.reset' => 'Your password has been reset!',
+    'viewed' => 'Viewed Successfully.',
     'saved' => 'Saved successfully.',
     'updated' => 'Updated successfully.',
     'uploaded' => 'Uploaded successfully.',

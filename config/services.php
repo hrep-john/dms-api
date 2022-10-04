@@ -24,12 +24,6 @@ return [
         'token' => env('POSTMARK_TOKEN'),
     ],
 
-    // 'ses' => [
-    //     'key' => env('AWS_ACCESS_KEY_ID'),
-    //     'secret' => env('AWS_SECRET_ACCESS_KEY'),
-    //     'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
-    // ],
-
     'ses' => [
         'key' => env('SES_KEY'),
         'secret' => env('SES_KEY_SECRET'),

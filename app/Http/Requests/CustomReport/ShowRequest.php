@@ -25,7 +25,20 @@ class ShowRequest extends FormRequest
     {
         return [
             'filters' => ['nullable', 'array'],
+            'slug' => ['required', 'exists:report_builders,slug']
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'slug' => $this->slug,
+        ]);
     }
 
     public function messages()

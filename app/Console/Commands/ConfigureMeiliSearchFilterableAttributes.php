@@ -75,6 +75,7 @@ class ConfigureMeiliSearchFilterableAttributes extends Command
             'documents' => [
                 'filter' => [
                     'id',
+                    'series_id',
                     'tenant_id',
                     'file_name',
                     'formatted_udfs',
@@ -82,6 +83,7 @@ class ConfigureMeiliSearchFilterableAttributes extends Command
                     'file_size',
                     'formatted_updated_at',
                     'formatted_detail_metadata',
+                    'user_access'
                 ],
                 'sort' => [
                     'formatted_updated_at', 

@@ -26,8 +26,6 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         $todayDate = date('Y-m-d');
-        Logger('id');
-        Logger($this->route('user.id'));
 
         return [
             'username' => ['required', 'string', 'max:50', 'max:255', 'unique:users,username,' . $this->route('user.id')],

@@ -39,6 +39,14 @@ class UserService extends BaseService implements UserServiceInterface
         return $builder->orderBy('users.id')->paginate($perPage);
     }
 
+    public function getSuperAdminUsers() 
+    {
+        return $this->model->whereIn('user_level', [
+            UserLevel::Superadmin,
+            UserLevel::Admin
+        ])->pluck('id')->toArray();
+    }
+
     protected function formatAttributes($attributes): array
     {
         if (isset($attributes['password'])) {
@@ -46,7 +54,8 @@ class UserService extends BaseService implements UserServiceInterface
         }
 
         $attributes['user_level'] = UserLevel::Regular;
-        $attributes['user_info']['first_name'] = $attributes['user_info']['first_name'] ?? '';
+        $attributes['user_info']['profile_picture_url'] = '/images/avatars/regular-user.jpg';
+        $attributes['user_info']['last_name'] = $attributes['user_info']['last_name'] ?? '';
         $attributes['user_info']['last_name'] = $attributes['user_info']['last_name'] ?? '';
 
         return $attributes;

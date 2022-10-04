@@ -2,8 +2,14 @@
 
 namespace App\Models;
 
-class ReportBuilder extends BaseModel
+use App\Traits\FilterByTenant;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+
+class ReportBuilder extends BaseModel implements HasMedia
 {
+    use FilterByTenant, InteractsWithMedia;
+
     protected $fillable = [
         'tenant_id',
         'module',

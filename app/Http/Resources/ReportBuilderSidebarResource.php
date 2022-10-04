@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ReportBuilderResource extends JsonResource
+class ReportBuilderSidebarResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,11 +19,6 @@ class ReportBuilderResource extends JsonResource
             'module'        => $this->module,
             'name'          => $this->name,
             'slug'          => $this->slug,
-            'format'        => $this->format,
-            'created_by'    => $this->formatted_created_by,
-            'updated_by'    => $this->formatted_updated_by,
-            'created_at'    => $this->formatted_created_at,
-            'updated_at'    => $this->formatted_updated_at,
         ];
     }
 }
