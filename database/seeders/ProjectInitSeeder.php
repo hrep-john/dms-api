@@ -2,7 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Enums\UserRole;
+use App\Enums\UserLevel;
+use App\Models\Tenant;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -40,26 +41,52 @@ class ProjectInitSeeder extends Seeder
     private function getRolePermissions() 
     {
         $permissions = [
-            'user' => [
-                'create.user',
-                'read.user',
-                'update.user',
-                'delete.user',
-                'fetch.users'
+            'Document' => [
+                'Document: View List',
+                'Document: Preview',
+                'Document: Create',
+                'Document: Edit',
+                'Document: Delete',
+                'Document: Download',
             ],
-            'document' => [
-                'create.file',
-                'read.file',
-                'update.file',
-                'delete.file',
-                'fetch.files'
+            'Settings' => [
+                'Settings: View Tenant Settings',
+                'Settings: Edit Tenant Settings',
+                'Settings: View Tenant Customization',
+                'Settings: Edit Tenant Customization',
+                'Settings: View User Defined Field List',
+                'Settings: Create User Defined Field',
+                'Settings: Edit User Defined Field',
+                'Settings: Delete User Defined Field',
+                'Settings: View Changelogs',
+                'Settings: View Profile',
+                'Settings: Edit Profile',
+            ],
+            'User' => [
+                'User: View List',
+                'User: Create',
+                'User: Edit User',
+                'User: Delete User',
+            ],
+            'Role' => [
+                'Role: View List',
+                'Role: Create',
+                'Role: Edit User',
+                'Role: Delete User',
             ],
         ];
 
         $rolePermissions = [
-            UserRole::Superadmin => [...$permissions['user'], ...$permissions['document']],
-            UserRole::Admin      => [...$permissions['user'], ...$permissions['document']],
-            UserRole::Encoder    => [...$permissions['document']],
+            UserLevel::Superadmin => $permissions,
+            UserLevel::Admin      => $permissions,
+            UserLevel::Regular    => [
+                'Document' => [
+                    'Document: View List',
+                    'Document: Create',
+                    'Document: Edit',
+                    'Document: Download',
+                ]
+            ],
         ];
 
         return $rolePermissions;
@@ -67,14 +94,34 @@ class ProjectInitSeeder extends Seeder
 
     private function createRolePermissions($rolePermissions)
     {
-        $allPermissions = $rolePermissions[UserRole::Superadmin];
+        $createdPermissions = [];
+        $tenant = Tenant::first();
 
-        foreach ($allPermissions as $permission) {
-            Permission::create(['name' => $permission]);
-        }
+        foreach ($rolePermissions as $roleName => $permissionModules) {
+            $role = Role::create([
+                'name' => $roleName,
+                'guard_name' => 'web',
+                'tenant_id' => $tenant->id,
+            ]);
 
-        foreach($rolePermissions as $role => $permissions) {
-            Role::create(['name' => $role])->givePermissionTo($permissions);
+            $permissions = [];
+
+            foreach ($permissionModules as $module => $modulePermissions) {
+                foreach ($modulePermissions as $permission) {
+                    if (!in_array($permission, $createdPermissions)) {
+                        Permission::create([
+                            'name' => $permission,
+                            'module' => $module
+                        ]);
+
+                        $createdPermissions[] = $permission;
+                    }
+
+                    $permissions[] = $permission;
+                }
+            }
+
+            $role->givePermissionTo($permissions);
         }
     }
 

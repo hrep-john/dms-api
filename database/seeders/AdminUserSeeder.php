@@ -43,9 +43,10 @@ class AdminUserSeeder extends Seeder
             'password' => Hash::make($password)
         ]);
 
-        $user->userInfo()->create([
+        $user->user_info()->create([
             'first_name' => 'superadmin',
-            'last_name' => 'dms',
+            'last_name' => 'user',
+            'profile_picture_url' => '/images/avatars/superadmin-user.svg',
             'tenant_id' => $tenant->id
         ]);
 
@@ -54,7 +55,7 @@ class AdminUserSeeder extends Seeder
 
     private function createTenantAdmin($tenant) 
     {
-        $username = 'admin';
+        $username = 'tenant-admin';
         $email = 'admin@dms.com';
         $password = '@DMIN+';
 
@@ -64,9 +65,10 @@ class AdminUserSeeder extends Seeder
             'password' => Hash::make($password)
         ]);
 
-        $user->userInfo()->create([
-            'first_name' => 'admin',
-            'last_name' => 'dms',
+        $user->user_info()->create([
+            'first_name' => 'tenant-admin',
+            'last_name' => 'user',
+            'profile_picture_url' => '/images/avatars/superadmin-user.svg',
             'tenant_id' => $tenant->id
         ]);
 

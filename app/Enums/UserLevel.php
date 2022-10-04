@@ -4,10 +4,9 @@ namespace App\Enums;
 
 use BenSampo\Enum\Enum;
 
-final class UserRole extends Enum
+final class UserLevel extends Enum
 {
     const Superadmin = 'superadmin';
     const Admin = 'admin';
-    const Encoder = 'encoder';
-    const Viewer = 'viewer';
+    const Regular = 'regular';
 }

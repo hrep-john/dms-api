@@ -6,6 +6,7 @@ use App\Helpers\ApiErrorResponse;
 use App\Http\Requests\UpdatePassword;
 use App\Http\Requests\UpdateProfile;
 use App\Http\Requests\UploadProfilePicture;
+use App\Http\Resources\ReportBuilderSidebarResource;
 use App\Models\User;
 use App\Traits\ApiResponder;
 use Illuminate\Support\Facades\Auth;
@@ -26,9 +27,13 @@ class ProfileController extends Controller
     public function show()
     {
         $user = Auth::user();
+        $customReports = $user->user_info->tenant->custom_reports;
+
         return $this->success([
             'user' => $user->flattenUserInfo(), 
             'roles' => $user->user_roles,
+            'permissions' => $user->user_permissions,
+            'custom_reports' => ReportBuilderSidebarResource::collection($customReports)
         ], Response::HTTP_OK);
     }
 
@@ -41,7 +46,7 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         $user->update($request->only('email'));
-        $user->userInfo()->update($request->except('email'));
+        $user->user_info()->update($request->except('email'));
 
         // Re-assignment to run eager loading of user_info
         $user = User::find($user->id);

@@ -6,6 +6,7 @@ use App\Http\Services\Contracts\BaseServiceInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use App\Http\Traits\DatabaseTransaction;
+use Illuminate\Database\Eloquent\Builder;
 use Str;
 
 class BaseService implements BaseServiceInterface
@@ -59,15 +60,17 @@ class BaseService implements BaseServiceInterface
         $perPage = request()->get('per_page', 10);
         $filters = request()->get('filters', []);
 
-        $results = $this->model;
+        $model = $this->model;
+
+        $model = $this->beforeFiltering($model);
 
         foreach($filters as $filter) {
             $filter = JSON_DECODE($filter);
             $method = Str::lower($filter->join) === 'or' ? 'orWhere' : 'where';
-            $results = $results->{$method}($filter->column, $filter->operator, $filter->value);
+            $model = $model->{$method}($filter->column, $filter->operator, $filter->value);
         }
 
-        return $results->paginate($perPage);
+        return $model->paginate($perPage);
     }
 
     /**
@@ -137,7 +140,9 @@ class BaseService implements BaseServiceInterface
     */
     public function find($id): ?Model
     {
-        return $this->model->find($id);
+        $model = $this->model->find($id);
+
+        return $model;
     }
 
     /**
@@ -171,6 +176,11 @@ class BaseService implements BaseServiceInterface
         
     }
 
+    protected function afterShown($model): void
+    {
+        
+    }
+
     protected function afterUpdated($model, $attributes): void
     {
         
@@ -179,5 +189,10 @@ class BaseService implements BaseServiceInterface
     protected function afterDelete($model): void
     {
         
+    }
+
+    protected function beforeFiltering($model)
+    {
+        return $model;
     }
 }

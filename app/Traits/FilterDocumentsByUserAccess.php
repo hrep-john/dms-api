@@ -4,18 +4,16 @@ namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
 
-trait FilterUdfsByTenant
+trait FilterDocumentsByUserAccess
 {
     protected static function boot()
     {
         parent::boot();
 
         self::addGlobalScope(function(Builder $builder) {
-            $tenant = \App\Helpers\tenant();
-
-            if (!is_null($tenant)) {
-                $builder->where('tenant_id', $tenant);
-            }
+            $builder->whereHas('userAccess', function (Builder $query) {
+                return $query->where('user_id', auth()->user()->id);
+            });
         });
     }
 }

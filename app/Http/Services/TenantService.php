@@ -63,7 +63,7 @@ class TenantService extends BaseService implements TenantServiceInterface
             'password' => Hash::make($password)
         ]);
 
-        $user->userInfo()->create([
+        $user->user_info()->create([
             'first_name' => 'superadmin',
             'last_name' => 'dms',
             'tenant_id' => $model->id
@@ -74,7 +74,7 @@ class TenantService extends BaseService implements TenantServiceInterface
 
     private function createTenantAdmin($model) 
     {
-        $username = 'admin';
+        $username = 'tenant-admin';
         $email = 'admin@dms.com';
         $password = '@DMIN+';
 
@@ -84,7 +84,7 @@ class TenantService extends BaseService implements TenantServiceInterface
             'password' => Hash::make($password)
         ]);
 
-        $user->userInfo()->create([
+        $user->user_info()->create([
             'first_name' => 'admin',
             'last_name' => 'dms',
             'tenant_id' => $model->id
