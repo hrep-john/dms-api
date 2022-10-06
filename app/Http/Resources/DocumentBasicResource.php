@@ -15,19 +15,20 @@ class DocumentBasicResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'            => $this->id,
-            'series_id'     => $this->series_id,
-            'filename'      => $this->file_name,
-            'extension'     => $this->latest_media->extension,
-            'size'          => $this->latest_media->human_readable_size,
-            'mime_type'     => $this->latest_media->mime_type,
-            'url'           => $this->cloud_url,
-            'udfs'          => $this->formatted_udfs,
-            'created_by'    => $this->formatted_created_by,
-            'updated_by'    => $this->formatted_updated_by,
-            'created_at'    => $this->formatted_created_at,
-            'updated_at'    => $this->formatted_updated_at,
-            'match'         => $this->match
+            'id'                => $this->id,
+            'series_id'         => $this->series_id,
+            'filename'          => $this->file_name,
+            'extension'         => $this->latest_media->extension,
+            'size'              => $this->latest_media->human_readable_size,
+            'mime_type'         => $this->latest_media->mime_type,
+            'url'               => $this->cloud_url,
+            'udfs'              => $this->formatted_udfs,
+            'created_by'        => $this->formatted_created_by,
+            'updated_by'        => $this->formatted_updated_by,
+            'created_at'        => $this->formatted_created_at,
+            'updated_at'        => $this->formatted_updated_at,
+            'match'             => $this->match,
+            'has_user_metadata' => $this->has_user_metadata
         ];
     }
 }

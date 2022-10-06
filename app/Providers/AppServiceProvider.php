@@ -44,8 +44,6 @@ class AppServiceProvider extends ServiceProvider
             if ($model->event === 'updated' && $model->old_values === $model->new_values) {
                 return false;
             }
-
-            $model->auditable_type = Str::after($model->auditable_type, 'App\\Models\\');
         });
     }
 }

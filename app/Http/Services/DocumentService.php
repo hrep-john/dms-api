@@ -90,6 +90,7 @@ class DocumentService extends BaseService implements DocumentServiceInterface
                 'formatted_detail_metadata',
                 'created_by',
                 'updated_by',
+                'has_user_metadata'
             ];
 
             return $meiliSearch->search($query, $options);
@@ -120,8 +121,9 @@ class DocumentService extends BaseService implements DocumentServiceInterface
                 'series_id' => $hit['series_id'],
                 'file_name' => $hit['file_name'],
                 'user_defined_field' => $hit['user_defined_field'],
-                'updated_at' => $hit['formatted_updated_at'],
+                'has_user_metadata' => $hit['has_user_metadata'],
                 'match' => $collection,
+                'updated_at' => $hit['formatted_updated_at'],
                 'created_by' => $hit['created_by'],
                 'updated_by' => $hit['updated_by'],
             ];
@@ -298,7 +300,7 @@ class DocumentService extends BaseService implements DocumentServiceInterface
 
     protected function afterStore($model, $attributes): void
     {
-        App::make(TenantSettingServiceInterface::class)->incrementTenantDocumentSeriesId(1);
+        App::make(TenantSettingServiceInterface::class)->incrementTenantDocumentSeriesId($model['tenant_id']);
 
         $users = App::make(UserServiceInterface::class)->getSuperAdminUsers();
 

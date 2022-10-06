@@ -66,8 +66,6 @@ class DocumentController extends Controller
         try {
             $result = $this->service->upload($request->validated());
         } catch (Exception $e) {
-            Logger('document controller store');
-            Logger($e);
             $this->throwError(Lang::get('error.save.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 

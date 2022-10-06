@@ -43,6 +43,7 @@ trait ApiResponder
      */
     protected function throwError(string $message, ?array $errors,  int $statusCode, string $errorCode = NULL)
     {
+        Logger('apiresponsder');
         Logger([
             'message' => $message,
             'errors' => $errors,

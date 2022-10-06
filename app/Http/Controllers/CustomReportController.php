@@ -9,9 +9,11 @@ use App\Http\Resources\ReportBuilderResource as BasicResource;
 use App\Http\Services\Contracts\CustomReportServiceInterface;
 use App\Http\Requests\CustomReport\ShowRequest;
 use App\Http\Services\Contracts\ReportBuilderServiceInterface;
+use App\Http\Services\Contracts\UserServiceInterface;
 use App\Models\UserDefinedField;
 use App\Traits\ApiResponder;
 use Arr;
+use Carbon\Carbon;
 use Exception;
 use Lang;
 use Str;
@@ -61,7 +63,8 @@ class CustomReportController extends Controller
     private function formatDataByColumnSettings($data, $template)
     {
         $columnSettings = JSON_DECODE(JSON_DECODE($template->format)->column_settings);
-        $unformattedUdfs = collect($columnSettings)->where('unformatted_udf', true)->pluck('field')->toArray();
+        $rawColumns = collect($columnSettings)->where('raw', true)->toArray();
+        $rawFields = Arr::pluck($rawColumns, 'field');
         $formattedData = [];
 
         foreach($data as $row) {
@@ -70,9 +73,10 @@ class CustomReportController extends Controller
             foreach ($row as $column => $value) {
                 if ($value == 'null') {
                     $value = null;
-                } else if (in_array($column, $unformattedUdfs)) {
-                    if (!is_null($value)) {
-                        $value = Str::replace('"', '', $value);
+                } else if (in_array($column, $rawFields)) {
+                    $type = $this->getColumnType($rawColumns, $column);
+
+                    if ($type === 'dropdown') {
                         $udf = UserDefinedField::where('key', $column)->first();
                         $udfSettings = JSON_DECODE($udf->settings);
                         $udfSource = $udfSettings->source;
@@ -84,6 +88,14 @@ class CustomReportController extends Controller
                             if (!is_null($selected)) {
                                 $value = $selected->label;
                             }
+                        } else if ($udfSource === 'users') {
+                            $user = App::make(UserServiceInterface::class)->find($value);
+                            $value = $user->user_info->full_name ?? '';
+                        }
+                    } else if ($type === 'date') {
+                        if (!is_null($value)) {
+                            $value = $value/1000;
+                            $value = Carbon::parse($value)->format('Y-m-d');
                         }
                     }
                 }
@@ -95,5 +107,18 @@ class CustomReportController extends Controller
         }
 
         return $formattedData;
+    }
+
+    private function getColumnType($rawFields, $column)
+    {
+        $type = '';
+
+        foreach ($rawFields as $rawField) {
+            if ($rawField->field === $column) {
+                $type = $rawField->type;
+            }
+        }
+
+        return $type;
     }
 }

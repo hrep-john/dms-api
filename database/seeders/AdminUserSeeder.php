@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserLevel;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Traits\Seedable;
@@ -26,6 +27,7 @@ class AdminUserSeeder extends Seeder
         foreach(Tenant::withoutGlobalScopes()->cursor() as $tenant) {
             $this->createTenantSuperadmin($tenant);
             $this->createTenantAdmin($tenant);
+            $this->createRegular($tenant);
         }
 
         $this->seed($this::class);
@@ -50,7 +52,7 @@ class AdminUserSeeder extends Seeder
             'tenant_id' => $tenant->id
         ]);
 
-        $user->assignRole('superadmin');
+        $user->assignRole(UserLevel::Superadmin);
     }
 
     private function createTenantAdmin($tenant) 
@@ -72,6 +74,28 @@ class AdminUserSeeder extends Seeder
             'tenant_id' => $tenant->id
         ]);
 
-        $user->assignRole('admin');
+        $user->assignRole(UserLevel::Admin);
+    }
+
+    private function createRegular($tenant) 
+    {
+        $username = 'regular';
+        $email = 'admin@dms.com';
+        $password = '@DMIN+';
+
+        $user = User::create([
+            'username' => $username,
+            'email' => $email,
+            'password' => Hash::make($password)
+        ]);
+
+        $user->user_info()->create([
+            'first_name' => 'regular',
+            'last_name' => 'user',
+            'profile_picture_url' => '/images/avatars/regular-user.jpg',
+            'tenant_id' => $tenant->id
+        ]);
+
+        $user->assignRole(UserLevel::Regular);
     }
 }
