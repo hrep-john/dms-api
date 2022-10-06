@@ -48,6 +48,7 @@ class CustomReportController extends Controller
             $results = $this->paginate($results);
             $results['data'] = $this->formatDataByColumnSettings($results['data'], $template);
         } catch (Exception $e) {
+            Logger($e);
             $this->throwError(Lang::get('error.show.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
