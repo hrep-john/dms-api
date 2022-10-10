@@ -78,6 +78,9 @@ class CustomReportController extends Controller
                     $type = $this->getColumnType($rawColumns, $column);
 
                     if ($type === 'dropdown') {
+                        Logger('debug formatDataByColumnSettings');
+                        Logger($column);
+                        Logger($value);
                         $udf = UserDefinedField::where('key', $column)->first();
                         $udfSettings = JSON_DECODE($udf->settings);
                         $udfSource = $udfSettings->source;
