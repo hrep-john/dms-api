@@ -2,8 +2,10 @@
 
 namespace App\Http\Services;
 
+use App;
 use App\Enums\JobStatus;
 use App\Http\Services\Contracts\DocumentDetailMetadataServiceInterface;
+use App\Http\Services\Contracts\DocumentServiceInterface;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Document;
 use App\Models\DocumentDetailMetadata;
@@ -17,7 +19,7 @@ class DocumentDetailMetadataService extends BaseService implements DocumentDetai
      */     
     protected $model;
     protected $sdk;
-    protected $auth;
+    protected $userId;
 
     /**      
      * DocumentDetailMetadataService constructor.      
@@ -29,22 +31,22 @@ class DocumentDetailMetadataService extends BaseService implements DocumentDetai
         parent::__construct($model);
     }
 
-    public function extract(Document $model, $auth)
+    public function extract(string $filePath, int $userId)
     {
-        $this->auth = $auth;
+        $this->userId = $userId;
         $this->initialize(TextractClient::class);
-        $this->startJob($model->latest_media->getPath());
+        $this->startJob($filePath);
     }
 
-    public function getResults(Document $model, $auth, $jobId) {
+    public function getResults(int $documentId, int $userId, string $jobId) {
         $this->initialize(TextractClient::class);
-        $this->auth = $auth;
+        $this->userId = $userId;
         $delayPerJob = now()->addSeconds(1);
 
         $results = $this->getJobResults($jobId);
-        $this->bulkInsert($model, $results);
+        $this->bulkInsert($documentId, $results);
 
-        dispatch(new AnalyzeDocument($model, $auth))->delay($delayPerJob);
+        dispatch(new AnalyzeDocument($documentId, $userId))->delay($delayPerJob);
     }
 
     protected function initialize($service): void
@@ -59,13 +61,13 @@ class DocumentDetailMetadataService extends BaseService implements DocumentDetai
         ));
     }
 
-    protected function startJob($documentName)
+    protected function startJob(string $filePath): string
     {
         $result = $this->sdk->startDocumentTextDetection([
             'DocumentLocation' => [
                 'S3Object' => [
                     'Bucket' => env('AWS_BUCKET'),
-                    'Name' => $documentName
+                    'Name' => $filePath
                 ],
             ],
             'NotificationChannel' => [
@@ -77,7 +79,7 @@ class DocumentDetailMetadataService extends BaseService implements DocumentDetai
         return $result['JobId'];
     }
 
-    protected function getJobResults($jobId)
+    protected function getJobResults(string $jobId)
     {
         $results = [];
         $nextToken = '';
@@ -88,12 +90,12 @@ class DocumentDetailMetadataService extends BaseService implements DocumentDetai
 
         $response = $this->sdk->getDocumentTextDetection(['JobId' => $jobId]);
         $nextToken = $response['NextToken'];
-        $results = array_merge($results, $this->filterBlockResult($response['Blocks'], 'WORD'));
+        $results = array_merge($results, $this->filterBlockResult($response['Blocks'], 'LINE'));
 
         while (!is_null($nextToken)) {
             $response = $this->sdk->getDocumentTextDetection(['JobId' => $jobId, 'NextToken' => $nextToken]);
             $nextToken = $response['NextToken'];
-            $results = array_merge($results, $this->filterBlockResult($response['Blocks'], 'WORD'));
+            $results = array_merge($results, $this->filterBlockResult($response['Blocks'], 'LINE'));
         }
 
         return $results;
@@ -124,16 +126,17 @@ class DocumentDetailMetadataService extends BaseService implements DocumentDetai
         return $results;
     }
 
-    protected function bulkInsert($model, $results)
+    protected function bulkInsert($documentId, $results)
     {
-        $model->detailMetadata()->delete();
+        $document = App::make(DocumentServiceInterface::class)->find($documentId);
+        $document->detailMetadata()->delete();
 
-        $results = collect($results)->chunk(500);
+        $results = collect($results)->chunk(250);
 
         foreach($results as $result) {
-            $formatted = $this->mappings($result, $model->id);
+            $formatted = $this->mappings($result, $document->id);
 
-            $model->detailMetadata()->insert($formatted);
+            $document->detailMetadata()->insert($formatted);
         }
     }
 
@@ -146,8 +149,8 @@ class DocumentDetailMetadataService extends BaseService implements DocumentDetai
                 'score' => $item['Confidence'],
                 'created_at' => now(),
                 'updated_at' => now(),
-                'created_by' => $this->auth->id,
-                'updated_by' => $this->auth->id
+                'created_by' => $this->userId,
+                'updated_by' => $this->userId,
             ];
         })->toArray();
     }

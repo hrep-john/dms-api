@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use ApiErrorResponse;
 use App\Models\Tenant as MainModel;
-use App\Http\Resources\TenantResource as MainResource;
+use App\Http\Resources\TenantResource as BasicResource;
 use App\Http\Services\Contracts\TenantServiceInterface;
 use App\Http\Requests\Tenant\StoreRequest;
 use App\Http\Requests\Tenant\UpdateRequest;
@@ -28,12 +28,12 @@ class TenantController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return MainResource
+     * @return BasicResource
      */
     public function index()
     {
         $results = $this->service->paginate();
-        $results->data = MainResource::collection($results);
+        $results->data = BasicResource::collection($results);
 
         return $this->success([
             'results' => $this->paginate($results)
@@ -44,18 +44,19 @@ class TenantController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  StoreRequest  $request
-     * @return MainResource
+     * @return BasicResource
      */
     public function store(StoreRequest $request)
     {
         try {
             $result = $this->service->store($request->validated());
         } catch (Exception $e) {
+            Logger($e);
             $this->throwError(Lang::get('error.save.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
         return $this->success([
-            'result' => new MainResource($result),
+            'result' => new BasicResource($result),
             'message' => Lang::get('success.created')
         ], Response::HTTP_CREATED);
     }
@@ -64,7 +65,7 @@ class TenantController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return MainResource
+     * @return BasicResource
      */
     public function show(int $id)
     {
@@ -74,7 +75,7 @@ class TenantController extends Controller
             $this->throwError(Lang::get('error.show.failed'), NULL, Response::HTTP_NOT_FOUND, ApiErrorResponse::UNKNOWN_ROUTE_CODE);
         }
 
-        return $this->success(['result' => new MainResource($result)], Response::HTTP_OK);
+        return $this->success(['result' => new BasicResource($result)], Response::HTTP_OK);
     }
 
     /**
@@ -82,7 +83,7 @@ class TenantController extends Controller
      *
      * @param  UpdateRequest  $request
      * @param  MainModel  $tenant
-     * @return MainResource
+     * @return BasicResource
      */
     public function update(UpdateRequest $request, MainModel $tenant)
     {
@@ -93,7 +94,7 @@ class TenantController extends Controller
         }
 
         return $this->success([
-            'result' => new MainResource($result),
+            'result' => new BasicResource($result),
             'message' => Lang::get('success.updated')
         ], Response::HTTP_OK);
     }

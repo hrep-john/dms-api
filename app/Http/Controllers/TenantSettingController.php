@@ -3,15 +3,21 @@
 namespace App\Http\Controllers;
 
 use ApiErrorResponse;
+use App;
 use App\Models\TenantSetting as MainModel;
-use App\Http\Resources\TenantSettingResource as MainResource;
+use App\Http\Resources\TenantSettingResource as BasicResource;
 use App\Http\Services\Contracts\TenantSettingServiceInterface;
 use App\Http\Requests\TenantSetting\StoreRequest;
+use App\Http\Requests\TenantSetting\SyncRequest;
 use App\Http\Requests\TenantSetting\UpdateRequest;
 use App\Http\Requests\TenantSettingDomainRequest;
+use App\Http\Requests\UploadTenantSettingImage;
+use App\Http\Services\Contracts\TenantServiceInterface;
+use App\Mail\PasswordResetOtp;
 use App\Traits\ApiResponder;
 use Exception;
 use Lang;
+use Mail;
 use Symfony\Component\HttpFoundation\Response;
 
 class TenantSettingController extends Controller
@@ -28,12 +34,12 @@ class TenantSettingController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return MainResource
+     * @return BasicResource
      */
     public function index()
     {
         $results = $this->service->paginate();
-        $results->data = MainResource::collection($results);
+        $results->data = BasicResource::collection($results);
 
         return $this->success([
             'results' => $this->paginate($results)
@@ -44,7 +50,7 @@ class TenantSettingController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  StoreRequest  $request
-     * @return MainResource
+     * @return BasicResource
      */
     public function store(StoreRequest $request)
     {
@@ -55,7 +61,7 @@ class TenantSettingController extends Controller
         }
 
         return $this->success([
-            'result' => new MainResource($result),
+            'result' => new BasicResource($result),
             'message' => Lang::get('success.created')
         ], Response::HTTP_CREATED);
     }
@@ -64,7 +70,7 @@ class TenantSettingController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return MainResource
+     * @return BasicResource
      */
     public function show(int $id)
     {
@@ -74,14 +80,14 @@ class TenantSettingController extends Controller
             $this->throwError(Lang::get('error.show.failed'), NULL, Response::HTTP_NOT_FOUND, ApiErrorResponse::UNKNOWN_ROUTE_CODE);
         }
 
-        return $this->success(['result' => new MainResource($result)], Response::HTTP_OK);
+        return $this->success(['result' => new BasicResource($result)], Response::HTTP_OK);
     }
 
     /**
      * Display the specified resource.
      *
      * @param  string  $domain
-     * @return MainResource
+     * @return BasicResource
      */
     public function getTenantSettingsByDomain(TenantSettingDomainRequest $request)
     {
@@ -91,7 +97,7 @@ class TenantSettingController extends Controller
             $this->throwError(Lang::get('error.show.failed'), NULL, Response::HTTP_NOT_FOUND, ApiErrorResponse::UNKNOWN_ROUTE_CODE);
         }
 
-        return $this->success(['results' => MainResource::collection($results)], Response::HTTP_OK);
+        return $this->success(['results' => BasicResource::collection($results)], Response::HTTP_OK);
     }
 
     /**
@@ -99,7 +105,7 @@ class TenantSettingController extends Controller
      *
      * @param  UpdateRequest  $request
      * @param  MainModel  $tenantSetting
-     * @return MainResource
+     * @return BasicResource
      */
     public function update(UpdateRequest $request, MainModel $tenantSetting)
     {
@@ -110,7 +116,7 @@ class TenantSettingController extends Controller
         }
 
         return $this->success([
-            'result' => new MainResource($result),
+            'result' => new BasicResource($result),
             'message' => Lang::get('success.updated')
         ], Response::HTTP_OK);
     }
@@ -130,5 +136,43 @@ class TenantSettingController extends Controller
         }
 
         return $this->success(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Sync the specified resource in storage.
+     *
+     * @param  SyncRequest  $request
+     * @return BasicResource
+     */
+    public function sync(SyncRequest $request)
+    {
+        try {
+            $request = $request->validated();
+            $model = App::make(TenantServiceInterface::class)->find($request['tenant_id']);
+
+            $this->service->sync($model, $request['settings']);
+        } catch (Exception $e) {
+            $this->throwError(Lang::get('error.update.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+        }
+
+        return $this->success([
+            'message' => Lang::get('success.updated')
+        ], Response::HTTP_OK);
+    }
+
+    /**
+     * Upload a new file in storage.
+     *
+     * @param  StoreRequest  $request
+     * @return BasicResource
+     */
+    public function upload(UploadTenantSettingImage $request)
+    {
+        $result = $this->service->upload($request->file('image'));
+
+        return $this->success([
+            'url' => $result,
+            'message' => Lang::get('success.uploaded')
+        ], Response::HTTP_OK);
     }
 }

@@ -44,6 +44,13 @@ interface BaseServiceInterface
     public function find($id): ?Model;
 
     /**
+    * @param $field
+    * @param $value
+    * @return Model
+    */
+    public function findBy($field, $value): ?Model;
+
+    /**
     * @return Collection
     */
     public function all();

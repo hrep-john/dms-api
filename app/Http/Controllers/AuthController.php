@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\UserRole;
+use App\Enums\UserLevel;
 use App\Helpers\ApiErrorResponse;
 use App\Http\Requests\LoginUser;
 use App\Http\Requests\ResetPassword;
 use App\Http\Requests\ShowEmailAvailability;
 use App\Http\Requests\StoreForgotPassword;
 use App\Http\Requests\StoreUser;
+use App\Http\Resources\ReportBuilderSidebarResource;
 use App\Mail\PasswordReset;
 use App\Mail\PasswordResetOtp;
 use App\Models\User;
@@ -36,7 +37,7 @@ class AuthController extends Controller
     {
         $request['password'] = Hash::make($request['password']);
         $newUser = User::create($request->only('email', 'password'));
-        $newUser->userInfo()->create($request->except('email', 'password', 'password_confirmation'));
+        $newUser->user_info()->create($request->except('email', 'password', 'password_confirmation'));
 
         // Re-assignment to run eager loading of user_info
         $newUser = User::find($newUser->id);
@@ -46,8 +47,8 @@ class AuthController extends Controller
         $token = $newUser->createToken('api_token')->plainTextToken;
         $type = 'Bearer';
 
-        // Assign encoder user permissions
-        $newUser->assignRole('encoder');
+        // Assign Encoder user permissions
+        $newUser->assignRole('Encoder');
         $rolesNames = $newUser->getRoleNames();
 
         return $this->success([
@@ -69,15 +70,19 @@ class AuthController extends Controller
             $this->throwError(Lang::get('validation.invalid.user.id.password'), NULL, Response::HTTP_UNAUTHORIZED, ApiErrorResponse::INVALID_CREDENTIALS_CODE);
         }
 
-        $token = Auth::user()->createToken('api_token')->plainTextToken;
+        $user = Auth::user();
+        $token = $user->createToken('api_token')->plainTextToken;
         $type = 'Bearer';
 
-        // Get roles
-        $roles = Auth::user()->getRoleNames();
+        $roles = $user->user_roles;
+        $permissions = $user->user_permissions;
+        $customReports = $user->user_info->tenant->custom_reports;
 
         return $this->success([
-            'user' => Auth::user()->flattenUserInfo(), 
-            'roles' => $roles, 
+            'user' => $user->flattenUserInfo(), 
+            'roles' => $roles,
+            'permissions' => $permissions,
+            'custom_reports' => ReportBuilderSidebarResource::collection($customReports),
             'access_token' => $token, 
             'token_type' => $type
         ], Response::HTTP_OK);
@@ -131,7 +136,7 @@ class AuthController extends Controller
             ['token' => $token, 'created_at' => Carbon::now()]
         );
 
-        $tenantDomain = $user->userInfo->tenant->domain ?? env('SPA_RESET_PASSWORD_URL');
+        $tenantDomain = $user->user_info->tenant->domain ?? env('SPA_RESET_PASSWORD_URL');
         $tenantDomain = Str::startsWith($tenantDomain, ['https://', 'http://']) ? $tenantDomain : sprintf('%s%s', 'http://', $tenantDomain);
         $reset_pass_link = sprintf('%s/auth/reset-password?token=%s&username=%s', $tenantDomain, $token, $user->username);
 
@@ -227,11 +232,11 @@ class AuthController extends Controller
             $user = auth()->user();
             $tenantDomain = \App\Helpers\tenantDomain();
 
-            if (!$user || in_array(UserRole::Superadmin, $user->user_roles->toArray())) {
+            if (!$user || $user->user_level === UserLevel::Superadmin) {
                 $flag = true;
             }
 
-            if (Str::lower(Auth::user()->userInfo->tenant->domain) === Str::lower($tenantDomain)) {
+            if (Str::lower(Auth::user()->user_info->tenant->domain) === Str::lower($tenantDomain)) {
                 $flag = true;
             }
         }

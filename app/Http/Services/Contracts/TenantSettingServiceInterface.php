@@ -3,6 +3,7 @@
 namespace App\Http\Services\Contracts;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 interface TenantSettingServiceInterface extends BaseServiceInterface
 {
@@ -10,5 +11,8 @@ interface TenantSettingServiceInterface extends BaseServiceInterface
     * @param $domain
     * @return Model
     */
+    public function incrementTenantDocumentSeriesId(int $tenantId);
     public function findByDomain(string $domain): ?Collection;
+    public function sync(Model $model, array $settings);
+    public function upload($file);
 }

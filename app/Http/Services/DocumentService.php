@@ -6,14 +6,17 @@ use App;
 use App\Enums\ExtractableOcr;
 use App\Http\Resources\DocumentBasicResource;
 use App\Http\Services\Contracts\DocumentServiceInterface;
+use App\Http\Services\Contracts\TenantSettingServiceInterface;
+use App\Http\Services\Contracts\UserServiceInterface;
 use App\Jobs\ExtractDocument;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Document;
 use Arr;
+use Event;
 use MeiliSearch\Endpoints\Indexes;
 use Storage;
 use Str;
-use IRR;
+use \OwenIt\Auditing\Events\AuditCustom;
 
 class DocumentService extends BaseService implements DocumentServiceInterface
 {
@@ -62,7 +65,7 @@ class DocumentService extends BaseService implements DocumentServiceInterface
 
         $builder = $this->model->search($q, function(Indexes $meiliSearch, string $query, array $options) use ($filter, $sort, $perPage, $page) {
             if ($filter) {
-                $options['filter'] = $filter;
+            $options['filter'] = $filter;
             }
 
             if ($sort) {
@@ -72,11 +75,12 @@ class DocumentService extends BaseService implements DocumentServiceInterface
             $options['attributesToHighlight'] = ['*'];
 
             $options['limit'] = $perPage;
-            $options['offset'] = $page - 1;
+            $options['offset'] = ($page - 1) * $perPage;
             $options['attributesToCrop'] = ['formatted_detail_metadata', 'detail_metadata'];
             $options['cropLength'] = 10;
             $options['attributesToRetrieve'] = [
                 'id',
+                'series_id',
                 'file_name',
                 'file_extension',
                 'file_size',
@@ -86,6 +90,7 @@ class DocumentService extends BaseService implements DocumentServiceInterface
                 'formatted_detail_metadata',
                 'created_by',
                 'updated_by',
+                'has_user_metadata'
             ];
 
             return $meiliSearch->search($query, $options);
@@ -94,6 +99,7 @@ class DocumentService extends BaseService implements DocumentServiceInterface
         $results = collect($builder['hits'])->map(function ($hit) {
             $collection = [];
             $requiredFields = [
+                'series_id',
                 'file_name',
                 'file_size',
                 'file_extension',
@@ -112,10 +118,12 @@ class DocumentService extends BaseService implements DocumentServiceInterface
 
             $mappings = [
                 'id' => $hit['id'],
+                'series_id' => $hit['series_id'],
                 'file_name' => $hit['file_name'],
                 'user_defined_field' => $hit['user_defined_field'],
-                'updated_at' => $hit['formatted_updated_at'],
+                'has_user_metadata' => $hit['has_user_metadata'],
                 'match' => $collection,
+                'updated_at' => $hit['formatted_updated_at'],
                 'created_by' => $hit['created_by'],
                 'updated_by' => $hit['updated_by'],
             ];
@@ -131,11 +139,30 @@ class DocumentService extends BaseService implements DocumentServiceInterface
         ];
     }
 
+    public function recentlyAssignedDocuments() 
+    {
+        $builder = $this->model
+            ->select(
+                'documents.id',
+                'file_name',
+                'document_user.updated_at'    
+            )
+            ->join('document_user', function ($join) {
+                $join->on('document_user.document_id', 'documents.id');
+                $join->where('document_user.user_id', auth()->user()->id);
+            })
+            ->orderBy('document_user.created_at', 'desc');
+
+        $perPage = request()->get('per_page', 10);
+
+        return $builder->paginate($perPage);
+    }
+
     protected function getMetaFromHits($hits)
     {
-        $currentPage = $hits['offset'] + 1;
         $perPage = $hits['limit'];
         $total = $hits['nbHits'];
+        $currentPage = ( $hits['offset'] / $perPage ) + 1;
         $lastPage = ceil($total / $perPage);
 
         return [
@@ -144,7 +171,7 @@ class DocumentService extends BaseService implements DocumentServiceInterface
             'per_page' => $perPage,
             'total' => $total,
             'to' => ($currentPage * $perPage) > $total ? $total : ($currentPage * $perPage),
-            'from' => ($hits['offset'] * $perPage) + 1
+            'from' => $hits['offset'] + 1
         ];
     }
 
@@ -168,6 +195,8 @@ class DocumentService extends BaseService implements DocumentServiceInterface
     {
         $document = $this->find($id);
 
+        $this->writeDocumentAuditLog($document, 'downloaded');
+
         return Storage::disk('s3')->temporaryUrl(  
             $document->latest_media->getPath(),
             now()->addMinutes(1),
@@ -175,15 +204,31 @@ class DocumentService extends BaseService implements DocumentServiceInterface
         );
     }
 
+    public function preview(int $id)
+    {
+        $document = $this->find($id);
+
+        $this->writeDocumentAuditLog($document, 'viewed');
+
+        return $document;
+    }
+
+    public function writeDocumentAuditLog($document, $event, $old = [], $new = [])
+    {
+        $document->auditEvent = $event;
+        $document->isCustomEvent = true;
+        $document->auditCustomOld = $old;
+        $document->auditCustomNew = $new;
+
+        Event::dispatch(AuditCustom::class, [$document]);
+    }
+
     public function upload($attributes): Document
     {
         $that = $this;
 
         return $this->transaction(function() use ($attributes, $that) {
-            $mappings = [
-                'folder_id' => $that->getFolderId(),
-                'file_name' => $attributes['document']->getClientOriginalName()
-            ];
+            $mappings = $this->getMappings($attributes['document']);
 
             $count = $that->checkFilenameCount($mappings['file_name']);
 
@@ -198,18 +243,38 @@ class DocumentService extends BaseService implements DocumentServiceInterface
             } else {
                 $document = $that->store($mappings);
             }
-    
-            $document
+
+            $file = $document
                 ->addMedia($attributes['document'])
                 ->withCustomProperties([
                     'version' => $count + 1
                 ])
                 ->toMediaCollection('files');
-    
-            $that->dispatchExtractDocument($document);
+
+            $document->searchable();
+
+            $extractable = array(
+                ExtractableOcr::Pdf,
+                ExtractableOcr::Tiff,
+                ExtractableOcr::Png,
+                ExtractableOcr::Jpeg
+            );
+
+            if (in_array($file->mime_type, $extractable)) {
+                dispatch(new ExtractDocument($file->getPath(), auth()->user()->id));
+            }
 
             return $document;
         });
+    }
+
+    public function findDocumentByMediaId(int $mediaId) 
+    {
+        $document = Document::whereHas('media', function ($query) use ($mediaId) {
+            $query->where('id', $mediaId);
+        });
+
+        return $document->first();
     }
 
     protected function checkFilenameCount(string $file_name = '')
@@ -226,25 +291,38 @@ class DocumentService extends BaseService implements DocumentServiceInterface
         return $count;
     }
 
-    protected function dispatchExtractDocument(Document $document) 
-    {
-        $extractable = array(
-            ExtractableOcr::Pdf,
-            ExtractableOcr::Tiff,
-            ExtractableOcr::Png,
-            ExtractableOcr::Jpeg
-        );
-
-        if (in_array($document->latest_media->mime_type, $extractable)) {
-            dispatch(new ExtractDocument($document, auth()->user()));
-        }
-    }
-
     protected function formatAttributes($attributes): array
     {
         $attributes['user_defined_field'] = JSON_ENCODE($attributes['user_defined_field'] ?? []);
 
         return $attributes;
+    }
+
+    protected function afterStore($model, $attributes): void
+    {
+        App::make(TenantSettingServiceInterface::class)->incrementTenantDocumentSeriesId($model['tenant_id']);
+
+        $users = App::make(UserServiceInterface::class)->getSuperAdminUsers();
+
+        if (!in_array(auth()->user()->id, $users)) {
+            $users[] = auth()->user()->id;
+        }
+
+        $model->userAccess()->attach($users);
+    }
+
+    protected function afterUpdated($model, $attributes): void
+    {
+        $owner = [ $model->created_by ];
+        $superadmins = App::make(UserServiceInterface::class)->getSuperAdminUsers();
+        $users = $attributes['user_access'] ?? [];
+        $users = array_merge(
+            $owner,
+            $superadmins, 
+            $users
+        );
+
+        $model->userAccess()->sync($users);
     }
 
     protected function afterDelete($model): void
@@ -260,11 +338,21 @@ class DocumentService extends BaseService implements DocumentServiceInterface
         }
     }
 
-    private function getFolderId() 
+    private function getMappings($document) 
     {
-        $tenant = auth()->user()->userInfo->tenant;
+        $tenant = auth()->user()->user_info->tenant;
+        $settings = $tenant->settings;
+
+        $prefix = $settings->where('key', 'tenant.document.series.id.prefix')->first()->value;
+        $counter = $settings->where('key', 'tenant.document.series.current.counter')->first()->value;
+        $length = $settings->where('key', 'tenant.document.series.counter.length')->first()->value;
+
         $folder = $tenant->folders->first();
 
-        return $folder->id;
+        return [
+            'folder_id' => $folder->id,
+            'file_name' => $document->getClientOriginalName(),
+            'series_id' => sprintf('%s%s', $prefix, str_pad($counter, $length, "0", STR_PAD_LEFT))
+        ];
     }
 }

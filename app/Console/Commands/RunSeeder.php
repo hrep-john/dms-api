@@ -38,11 +38,10 @@ class RunSeeder extends Command
      */
     public function handle()
     {
-        Artisan::call('db:seed --class=ProjectInitSeeder --force');
         Artisan::call('db:seed --class=TenantSeeder --force');
-        Artisan::call('db:seed --class=FolderSeeder --force');
+        Artisan::call('db:seed --class=ProjectInitSeeder --force');
         Artisan::call('db:seed --class=AdminUserSeeder --force');
-        Artisan::call('db:seed --class=UserDefinedFieldsSeeder --force');
+        Artisan::call('db:seed --class=FolderSeeder --force');
         Artisan::call('db:seed --class=TenantSettingsSeeder --force');
 
         return true;

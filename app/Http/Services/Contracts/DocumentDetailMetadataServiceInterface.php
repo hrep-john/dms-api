@@ -10,6 +10,6 @@ use App\Models\Document;
 */
 interface DocumentDetailMetadataServiceInterface extends BaseServiceInterface
 {
-    public function extract(Document $model, $user);
-    public function getResults(Document $model, $user, $jobId);
+    public function extract(string $filePath, int $userId);
+    public function getResults(int $documentId, int $userId, string $jobId);
 }

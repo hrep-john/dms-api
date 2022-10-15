@@ -6,11 +6,11 @@ use App;
 use App\Enums\UserDefinedFieldSource;
 use App\Http\Resources\UserListResource;
 use App\Http\Services\Contracts\UserServiceInterface;
-use App\Traits\FilterUdfsByTenant;
+use App\Traits\FilterByTenant;
 
 class UserDefinedField extends BaseModel
 {
-    use FilterUdfsByTenant;
+    use FilterByTenant;
 
     protected $fillable = [
         'tenant_id',

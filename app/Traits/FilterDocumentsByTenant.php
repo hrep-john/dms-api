@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 trait FilterDocumentsByTenant
 {
-    protected static function boot()
+    protected static function bootFilterDocumentsByTenant()
     {
         parent::boot();
 
@@ -17,6 +17,12 @@ trait FilterDocumentsByTenant
                 if (!is_null($tenant)) {
                     $query->where('tenant_id', $tenant);
                 }
+            });
+        });
+
+        self::addGlobalScope(function(Builder $builder) {
+            $builder->whereHas('userAccess', function (Builder $query) {
+                return $query->where('user_id', auth()->user()->id);
             });
         });
     }

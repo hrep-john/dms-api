@@ -27,6 +27,7 @@
         "webpatser/laravel-uuid": "^4.0"
     },
     "require-dev": {
+        "andreaselia/laravel-api-to-postman": "^1.12",
         "barryvdh/laravel-ide-helper": "^2.10",
         "facade/ignition": "^2.5",
         "fakerphp/faker": "^1.9.1",

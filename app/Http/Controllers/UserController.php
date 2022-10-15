@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use ApiErrorResponse;
 use App\Models\User as MainModel;
-use App\Http\Resources\UserResource as MainResource;
+use App\Http\Resources\UserResource as BasicResource;
 use App\Http\Services\Contracts\UserServiceInterface;
 use App\Http\Requests\User\StoreRequest;
 use App\Http\Requests\User\UpdateRequest;
+use App\Http\Resources\UserListResource;
 use App\Traits\ApiResponder;
 use Exception;
 use Lang;
@@ -27,12 +28,12 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return MainResource
+     * @return BasicResource
      */
     public function index()
     {
         $results = $this->service->paginate();
-        $results->data = MainResource::collection($results);
+        $results->data = BasicResource::collection($results);
 
         return $this->success([
             'results' => $this->paginate($results)
@@ -43,7 +44,7 @@ class UserController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  StoreRequest  $request
-     * @return MainResource
+     * @return BasicResource
      */
     public function store(StoreRequest $request)
     {
@@ -54,7 +55,7 @@ class UserController extends Controller
         }
 
         return $this->success([
-            'result' => new MainResource($result),
+            'result' => new BasicResource($result),
             'message' => Lang::get('success.created')
         ], Response::HTTP_CREATED);
     }
@@ -63,7 +64,7 @@ class UserController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return MainResource
+     * @return BasicResource
      */
     public function show(int $id)
     {
@@ -73,7 +74,7 @@ class UserController extends Controller
             $this->throwError(Lang::get('error.show.failed'), NULL, Response::HTTP_NOT_FOUND, ApiErrorResponse::UNKNOWN_ROUTE_CODE);
         }
 
-        return $this->success(['result' => new MainResource($result)], Response::HTTP_OK);
+        return $this->success(['result' => new BasicResource($result)], Response::HTTP_OK);
     }
 
     /**
@@ -81,7 +82,7 @@ class UserController extends Controller
      *
      * @param  UpdateRequest  $request
      * @param  MainModel  $user
-     * @return MainResource
+     * @return BasicResource
      */
     public function update(UpdateRequest $request, MainModel $user)
     {
@@ -92,7 +93,7 @@ class UserController extends Controller
         }
 
         return $this->success([
-            'result' => new MainResource($result),
+            'result' => new BasicResource($result),
             'message' => Lang::get('success.updated')
         ], Response::HTTP_OK);
     }
@@ -112,5 +113,19 @@ class UserController extends Controller
         }
 
         return $this->success(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Display all listing of the resource.
+     *
+     * @return RoleListResource
+     */
+    public function list()
+    {
+        $results = $this->service->all();
+
+        return $this->success([
+            'results' => UserListResource::collection($results)
+        ], Response::HTTP_OK);
     }
 }

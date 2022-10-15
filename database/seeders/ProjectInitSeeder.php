@@ -2,10 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Enums\UserRole;
+use App;
+use App\Enums\UserLevel;
+use App\Http\Services\Contracts\RoleServiceInterface;
+use App\Models\Tenant;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 use App\Traits\Seedable;
 use Artisan;
 
@@ -31,50 +34,15 @@ class ProjectInitSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $rolePermissions = $this->getRolePermissions();
+        $this->createRolePermissions();
 
-        $this->createRolePermissions($rolePermissions);
         $this->seed($this::class);
     }
 
-    private function getRolePermissions() 
+    private function createRolePermissions()
     {
-        $permissions = [
-            'user' => [
-                'create.user',
-                'read.user',
-                'update.user',
-                'delete.user',
-                'fetch.users'
-            ],
-            'document' => [
-                'create.file',
-                'read.file',
-                'update.file',
-                'delete.file',
-                'fetch.files'
-            ],
-        ];
-
-        $rolePermissions = [
-            UserRole::Superadmin => [...$permissions['user'], ...$permissions['document']],
-            UserRole::Admin      => [...$permissions['user'], ...$permissions['document']],
-            UserRole::Encoder    => [...$permissions['document']],
-        ];
-
-        return $rolePermissions;
-    }
-
-    private function createRolePermissions($rolePermissions)
-    {
-        $allPermissions = $rolePermissions[UserRole::Superadmin];
-
-        foreach ($allPermissions as $permission) {
-            Permission::create(['name' => $permission]);
-        }
-
-        foreach($rolePermissions as $role => $permissions) {
-            Role::create(['name' => $role])->givePermissionTo($permissions);
+        foreach(Tenant::cursor() as $tenant) {
+            App::make(RoleServiceInterface::class)->createNewTenantRolesAndPermissions($tenant->id);
         }
     }
 

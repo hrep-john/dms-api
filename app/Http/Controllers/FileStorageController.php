@@ -19,11 +19,11 @@ class FileStorageController extends Controller
      */
     public function showProfilePicture()
     {
-        if (!Auth::user()->userInfo->profile_picture_url) {
+        if (!Auth::user()->user_info->profile_picture_url) {
             throw ApiErrorResponse::createErrorResponse('User has no associated profile picture', NULL, 404, ApiErrorResponse::RESOURCE_NOT_FOUND_CODE);
         }
 
-        $fileName = pathinfo(Auth::user()->userInfo->profile_picture_url)['basename'];
+        $fileName = pathinfo(Auth::user()->user_info->profile_picture_url)['basename'];
 
         $path = storage_path('app/public/uploads/profile_pictures/' . $fileName);
 

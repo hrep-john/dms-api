@@ -20,12 +20,12 @@ class BaseModel extends Model implements Auditable
 
     public function getFormattedCreatedByAttribute()
     {
-        return User::find($this->created_by)->userInfo->full_name ?? '';
+        return User::find($this->created_by)->user_info->full_name ?? '';
     }
 
     public function getFormattedUpdatedByAttribute()
     {
-        return User::find($this->updated_by)->userInfo->full_name ?? '';
+        return User::find($this->updated_by)->user_info->full_name ?? '';
     }
 
     public function getFormattedCreatedAtAttribute()

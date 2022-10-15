@@ -11,7 +11,7 @@ trait FilterUsersByTenant
         parent::boot();
 
         self::addGlobalScope(function(Builder $builder) {
-            $builder->whereHas('userInfo', function (Builder $query) {
+            $builder->whereHas('user_info', function (Builder $query) {
                 $tenant = \App\Helpers\tenant();
 
                 if (!is_null($tenant)) {

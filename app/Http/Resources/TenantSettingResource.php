@@ -15,8 +15,13 @@ class TenantSettingResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'key'    => $this->key,
-            'value'  => $this->value,
+            'label'         => $this->label,
+            'key'           => $this->key,
+            'value'         => $this->value,
+            'type'          => $this->type,
+            'comments'      => $this->comments,
+            'created_by'    => $this->created_by,
+            'updated_by'    => $this->updated_by,
         ];
     }
 }
