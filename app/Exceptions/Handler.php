@@ -2,7 +2,10 @@
 
 namespace App\Exceptions;
 
+use App;
 use App\Helpers\ApiErrorResponse;
+use App\Mail\ExceptionOccured;
+use App\Mail\PasswordResetOtp;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
@@ -10,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Mail;
 use Spatie\Permission\Exceptions\UnauthorizedException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
@@ -54,7 +58,38 @@ class Handler extends ExceptionHandler
             ], 403);
         });
 
-        $this->reportable(function (Throwable $e) {});
+        $this->reportable(function (Throwable $e) {
+            Logger('reportable');
+            Logger(JSON_ENCODE($e));
+
+            if (App::environment('production')) {
+                $this->sendEmail($e);
+            }
+        });
+    }
+
+    /**
+     * Write code on Method
+     *
+     * @return response()
+     */
+    public function sendEmail(Throwable $exception)
+    {
+        try {
+            $content['message'] = $exception->getMessage();
+            $content['file'] = $exception->getFile();
+            $content['line'] = $exception->getLine();
+            $content['trace'] = $exception->getTrace();
+            $content['url'] = request()->url();
+            $content['body'] = request()->all();
+            $content['ip'] = request()->ip();
+
+            $email = env('SUPERADMIN_EMAIL', 'hrep.john@gmail.com');
+
+            Mail::to($email)->send(new ExceptionOccured($content));
+        } catch (Throwable $exception) {
+            Log::error($exception);
+        }
     }
 
     /**

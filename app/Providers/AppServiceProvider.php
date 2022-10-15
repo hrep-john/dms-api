@@ -2,11 +2,9 @@
 
 namespace App\Providers;
 
-use Arr;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use OwenIt\Auditing\Models\Audit;
-use Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -44,8 +42,6 @@ class AppServiceProvider extends ServiceProvider
             if ($model->event === 'updated' && $model->old_values === $model->new_values) {
                 return false;
             }
-
-            $model->auditable_type = Str::after($model->auditable_type, 'App\\Models\\');
         });
     }
 }
