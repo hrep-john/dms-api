@@ -13,9 +13,11 @@ use App\Http\Requests\TenantSetting\UpdateRequest;
 use App\Http\Requests\TenantSettingDomainRequest;
 use App\Http\Requests\UploadTenantSettingImage;
 use App\Http\Services\Contracts\TenantServiceInterface;
+use App\Mail\PasswordResetOtp;
 use App\Traits\ApiResponder;
 use Exception;
 use Lang;
+use Mail;
 use Symfony\Component\HttpFoundation\Response;
 
 class TenantSettingController extends Controller

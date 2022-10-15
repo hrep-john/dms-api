@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 use App\Enums\UserLevel;
 use App\Http\Services\Contracts\UserServiceInterface;
+use App\Models\Role;
 use App\Models\User;
 use Hash;
 
@@ -64,13 +65,15 @@ class UserService extends BaseService implements UserServiceInterface
     protected function afterStore($model, $attributes): void
     {
         $model->user_info()->create($attributes['user_info']);
-        $model->assignRole($attributes['roles']);
+        $roles = Role::whereIn('name', $attributes['roles'])->pluck('id');
+        $model->roles()->attach($roles);
     }
 
     protected function afterUpdated($model, $attributes): void
     {
         $model->user_info()->update($attributes['user_info']);
-        $model->syncRoles($attributes['roles']);
+        $roles = Role::whereIn('name', $attributes['roles'])->pluck('id');
+        $model->roles()->sync($roles);
     }
 
     protected function afterDelete($model): void

@@ -17,6 +17,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 class Document extends BaseModel implements HasMedia
 {
     use HasFactory, Searchable, FilterDocuments, InteractsWithMedia;
+    use \OwenIt\Auditing\Auditable;
 
     protected $fillable = [
         'folder_id',
@@ -41,6 +42,7 @@ class Document extends BaseModel implements HasMedia
         'formatted_updated_at',
         'formatted_detail_metadata',
         'user_access',
+        'has_user_metadata'
     ];
 
     public $asYouType = true;
@@ -66,7 +68,8 @@ class Document extends BaseModel implements HasMedia
                 'file_name',
                 'file_extension',
                 'file_size',
-                'user_access'
+                'user_access',
+                'has_user_metadata'
             ]);
         }
     }
@@ -74,8 +77,8 @@ class Document extends BaseModel implements HasMedia
     public function transformAudit(array $data): array
     {
         if (Arr::has($data, 'new_values.user_defined_field')) {
-            $oldValues = JSON_DECODE($data['old_values']['user_defined_field'], true);
-            $newValues = JSON_DECODE($data['new_values']['user_defined_field'], true);
+            $oldValues = JSON_DECODE($data['old_values']['user_defined_field'] ?? '', true) ?? [];
+            $newValues = JSON_DECODE($data['new_values']['user_defined_field'] ?? '', true) ?? [];
             $diffNewValues = array_diff($newValues, $oldValues);
 
             if (count($diffNewValues) > 0) {
@@ -160,6 +163,21 @@ class Document extends BaseModel implements HasMedia
     public function getUserAccessAttribute() 
     {
         return $this->userAccess()->pluck('users.id');
+    }
+
+    public function getHasUserMetadataAttribute() 
+    {
+        $flag = false;
+
+        $udfs = array_values($this->formatted_udfs);
+
+        foreach ($udfs as $udf) {
+            if (!is_null($udf)) {
+                $flag = true;
+            }
+        }
+
+        return $flag;
     }
 
     private function getUdfCustomLabel($settings, $value) 
