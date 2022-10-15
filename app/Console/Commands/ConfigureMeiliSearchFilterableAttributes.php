@@ -61,7 +61,7 @@ class ConfigureMeiliSearchFilterableAttributes extends Command
         }
 
         $client->index('documents')->updateSettings([
-            'distinctAttribute' => 'filename'
+            'distinctAttribute' => 'file_name'
         ]);
 
         $client->index('document_entity_metadata')->updateSettings([
@@ -69,7 +69,7 @@ class ConfigureMeiliSearchFilterableAttributes extends Command
         ]);
     }
 
-    private function indexes() 
+    private function indexes()
     {
         return [
             'documents' => [
@@ -86,8 +86,8 @@ class ConfigureMeiliSearchFilterableAttributes extends Command
                     'user_access'
                 ],
                 'sort' => [
-                    'formatted_updated_at', 
-                    'file_size', 
+                    'formatted_updated_at',
+                    'file_size',
                     'file_name'
                 ]
             ],

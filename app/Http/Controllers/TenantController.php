@@ -51,6 +51,7 @@ class TenantController extends Controller
         try {
             $result = $this->service->store($request->validated());
         } catch (Exception $e) {
+            Logger($e);
             $this->throwError(Lang::get('error.save.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
