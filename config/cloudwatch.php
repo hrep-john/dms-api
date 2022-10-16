@@ -1,6 +1,9 @@
 <?php
 
+$date = date("Y-m-d");
+$projectAppName = strtolower(str_replace(' ', '-', env('APP_NAME', 'laravel_app')));
+
 return [
-    'log_group' => strtolower(str_replace(' ', '-', env('APP_NAME', 'laravel_app'))),
-    'stream_name' => strtolower(str_replace(' ', '-', env('APP_NAME', 'laravel_app')))
+    'log_group' => '//aws//elastic-beanstalk//' . $projectAppName,
+    'stream_name' => $projectAppName . '//' . $date
 ];
