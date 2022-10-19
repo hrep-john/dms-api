@@ -213,7 +213,8 @@ class TenantService extends BaseService implements TenantServiceInterface
         $user->user_info()->create([
             'first_name' => 'superadmin',
             'last_name' => 'dms',
-            'tenant_id' => $model->id
+            'tenant_id' => $model->id,
+            'profile_picture_url' => '/images/avatars/superadmin-user.svg'
         ]);
 
         $role = Role::withoutGlobalScopes()
@@ -239,7 +240,8 @@ class TenantService extends BaseService implements TenantServiceInterface
         $user->user_info()->create([
             'first_name' => 'admin',
             'last_name' => 'dms',
-            'tenant_id' => $model->id
+            'tenant_id' => $model->id,
+            'profile_picture_url' => '/images/avatars/superadmin-user.svg'
         ]);
 
         $role = Role::withoutGlobalScopes()
