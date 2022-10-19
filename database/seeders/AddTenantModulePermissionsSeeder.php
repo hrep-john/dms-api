@@ -47,13 +47,20 @@ class AddTenantModulePermissionsSeeder extends Seeder
         ];
 
         foreach ($tenantModulePermissions as $tenantModulePermission) {
-            Permission::create([
-                'name' => $tenantModulePermission,
-                'module' => 'Tenant',
-                'guard_name' => 'api - tenant ' . $tenantId,
-            ]);
+            $count = Permission::where('name', $tenantModulePermission)
+                ->where('module', 'Tenant')
+                ->where('guard_name', 'api - tenant ' . $tenantId) 
+                ->count();
 
-            $permissions[] = $tenantModulePermission;
+            if ($count === 0) {
+                Permission::create([
+                    'name' => $tenantModulePermission,
+                    'module' => 'Tenant',
+                    'guard_name' => 'api - tenant ' . $tenantId,
+                ]);
+    
+                $permissions[] = $tenantModulePermission;
+            }
         }
 
         return $permissions;
