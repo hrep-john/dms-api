@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\Udf\StoreRequest;
 use App\Http\Requests\Udf\UpdateRequest;
 use App\Models\UserDefinedField as MainModel;
+use Arr;
 
 class UdfController extends Controller
 {
@@ -50,7 +51,7 @@ class UdfController extends Controller
         try {
             $result = $this->service->store($request->validated());
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.save.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.save.failed'), Arr::wrap($e->getMessage()), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
         return $this->success([
@@ -88,7 +89,7 @@ class UdfController extends Controller
         try {
             $result = $this->service->update($request->validated(), $udf);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.update.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.update.failed'), Arr::wrap($e->getMessage()), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
         return $this->success([
@@ -108,7 +109,7 @@ class UdfController extends Controller
         try {
             $this->service->delete($udf);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.delete.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.delete.failed'), Arr::wrap($e->getMessage()), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
         return $this->success(null, Response::HTTP_NO_CONTENT);
