@@ -12,6 +12,7 @@ use App\Http\Requests\Document\StoreRequest;
 use App\Http\Requests\Document\UpdateRequest;
 use App\Http\Resources\AuditLogBasicResource;
 use App\Http\Resources\DocumentFullResource;
+use Arr;
 use Exception;
 use Illuminate\Http\Request;
 use Lang;
@@ -66,7 +67,7 @@ class DocumentController extends Controller
         try {
             $result = $this->service->upload($request->validated());
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.save.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.save.failed'), Arr::wrap($e->getMessage()), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
         return $this->success([
@@ -106,7 +107,7 @@ class DocumentController extends Controller
         try {
             $result = $this->service->update($request->validated(), $document);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.update.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.update.failed'), Arr::wrap($e->getMessage()), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
         return $this->success([
@@ -126,7 +127,7 @@ class DocumentController extends Controller
         try {
             $this->service->delete($document);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.delete.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.delete.failed'), Arr::wrap($e->getMessage()), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
         return $this->success(null, 204);
@@ -147,7 +148,7 @@ class DocumentController extends Controller
                 $this->service->delete($document);
             }
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.delete.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.delete.failed'), Arr::wrap($e->getMessage()), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
         return $this->success(null, 204);
@@ -166,7 +167,7 @@ class DocumentController extends Controller
             $document = $this->service->find($id);
             $this->service->delete($document);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.delete.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.delete.failed'), Arr::wrap($e->getMessage()), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
         return $this->success(null, 204);

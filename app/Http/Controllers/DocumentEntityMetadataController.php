@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use ApiErrorResponse;
 use App\Http\Resources\DocumentEntityMetadataResource as BasicResource;
 use App\Http\Services\Contracts\DocumentEntityMetadataServiceInterface;
-use Exception;
 use Lang;
 use Symfony\Component\HttpFoundation\Response;
 

@@ -150,10 +150,7 @@ class RoleService extends BaseService implements RoleServiceInterface
 
     protected function afterStore($model, $attributes): void
     {
-        Logger('beforesyncc');
         $permissions = Permission::whereIn('name', $attributes['permissions'])->where('guard_name', 'api - tenant '.$model->tenant_id)->pluck('id');
-        Logger($permissions);
-        Logger($model);
 
         $model->syncPermissions($permissions);
     }
@@ -197,6 +194,12 @@ class RoleService extends BaseService implements RoleServiceInterface
                 'User: Create',
                 'User: Edit User',
                 'User: Delete User',
+            ],
+            'Tenant' => [
+                'Tenant: View List',
+                'Tenant: Create',
+                'Tenant: Edit Tenant',
+                'Tenant: Delete Tenant',
             ],
             'Role' => [
                 'Role: View List',
