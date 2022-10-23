@@ -11,7 +11,6 @@ use App\Http\Requests\User\StoreRequest;
 use App\Http\Requests\User\UpdateRequest;
 use App\Http\Resources\UserListResource;
 use App\Traits\ApiResponder;
-use Arr;
 use Exception;
 use Lang;
 use Symfony\Component\HttpFoundation\Response;
@@ -53,7 +52,7 @@ class UserController extends Controller
         try {
             $result = $this->service->store($request->validated());
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.save.failed'), Arr::wrap($e->getMessage()), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.save.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE, $e->getMessage());
         }
 
         return $this->success([
@@ -91,7 +90,7 @@ class UserController extends Controller
         try {
             $result = $this->service->update($request->validated(), $user);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.update.failed'), Arr::wrap($e->getMessage()), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.update.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE, $e->getMessage());
         }
 
         return $this->success([
@@ -111,7 +110,7 @@ class UserController extends Controller
         try {
             $this->service->delete($user);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.delete.failed'), Arr::wrap($e->getMessage()), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.delete.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE, $e->getMessage());
         }
 
         return $this->success(null, Response::HTTP_NO_CONTENT);
