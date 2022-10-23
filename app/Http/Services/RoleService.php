@@ -160,8 +160,8 @@ class RoleService extends BaseService implements RoleServiceInterface
             'Role' => [
                 'Role: View List',
                 'Role: Create',
-                'Role: Edit User',
-                'Role: Delete User',
+                'Role: Edit Role',
+                'Role: Delete Role',
             ],
             'Report' => [
                 'Report: View',
