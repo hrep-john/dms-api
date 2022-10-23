@@ -22,7 +22,7 @@ class UserDefinedFieldService extends BaseService implements UserDefinedFieldSer
         parent::__construct($model);
     }
 
-    protected function formatAttributes($attributes): array
+    protected function formatAttributes($attributes, $method): array
     {
         $parsedSettings = JSON_DECODE($attributes['settings'], true);
 

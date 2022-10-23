@@ -53,7 +53,7 @@ class DocumentEntityMetadataService extends BaseService implements DocumentEntit
         return $results;
     }
 
-    protected function formatAttributes($attributes): array
+    protected function formatAttributes($attributes, $method): array
     {
         return $attributes;
     }

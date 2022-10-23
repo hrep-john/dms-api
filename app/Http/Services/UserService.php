@@ -10,6 +10,15 @@ use Hash;
 
 class UserService extends BaseService implements UserServiceInterface
 {
+    protected $joins = [
+        [
+            'table' => 'user_infos',
+            'operator' => '=',
+            'column_x' => 'user_infos.user_id',
+            'column_y' => 'users.id',
+        ]
+    ];
+
     /**
     * UserService constructor.
     *
@@ -48,7 +57,7 @@ class UserService extends BaseService implements UserServiceInterface
         ])->pluck('id')->toArray();
     }
 
-    protected function formatAttributes($attributes): array
+    protected function formatAttributes($attributes, $method): array
     {
         if (isset($attributes['password'])) {
             $attributes['password'] = Hash::make($attributes['password']);
