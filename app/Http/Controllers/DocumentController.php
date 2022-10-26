@@ -206,7 +206,7 @@ class DocumentController extends Controller
         }
 
         return $this->success([
-            'results' => AuditLogBasicResource::collection($result->auditLogs()->orderBy('updated_at', 'desc')->get())
+            'results' => AuditLogBasicResource::collection($result->auditLogs()->orderBy('updated_at', 'desc')->orderBy('id', 'desc')->get())
         ], Response::HTTP_OK);
     }
 }

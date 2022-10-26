@@ -45,6 +45,7 @@ class RunSeeder extends Command
         Artisan::call('db:seed --class=TenantSettingsSeeder --force');
         Artisan::call('db:seed --class=UpdateAllowUserAccessExistingDocumentsSeeder --force');
         Artisan::call('db:seed --class=AddTenantDefaultDocumentUserAccess --force');
+        Artisan::call('db:seed --class=InsertDocumentUploadedEventInAuditsSeeder --force');
         Artisan::call(sprintf('scout:flush App\\\Models\\\%s', 'Document'));
         Artisan::call(sprintf('scout:import App\\\Models\\\%s', 'Document'));
 

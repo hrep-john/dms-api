@@ -10,4 +10,6 @@ final class Event extends Enum
     const Updated = 'updated';
     const Deleted = 'deleted';
     const Restored = 'restored';
+    const Downloaded = 'downloaded';
+    const Uploaded = 'uploaded';
 }
