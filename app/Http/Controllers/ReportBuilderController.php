@@ -10,7 +10,6 @@ use App\Http\Services\Contracts\ReportBuilderServiceInterface;
 use App\Http\Requests\ReportBuilder\StoreRequest;
 use App\Http\Requests\ReportBuilder\UpdateRequest;
 use App\Traits\ApiResponder;
-use Arr;
 use Exception;
 use Illuminate\Http\Request;
 use Lang;
@@ -53,7 +52,7 @@ class ReportBuilderController extends Controller
         try {
             $result = $this->service->store($request->validated());
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.save.failed'), Arr::wrap($e->getMessage()), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.save.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE, $e->getMessage());
         }
 
         return $this->success([
@@ -89,7 +88,7 @@ class ReportBuilderController extends Controller
         try {
             $result = $this->service->update($request->validated(), $reportBuilder);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.update.failed'), Arr::wrap($e->getMessage()), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.update.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE, $e->getMessage());
         }
 
         return $this->success([
@@ -109,7 +108,7 @@ class ReportBuilderController extends Controller
         try {
             $this->service->delete($reportBuilder);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.delete.failed'), Arr::wrap($e->getMessage()), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.delete.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE, $e->getMessage());
         }
 
         return $this->success(null, Response::HTTP_NO_CONTENT);
@@ -121,7 +120,7 @@ class ReportBuilderController extends Controller
             $file = $request->file('upload');
             $result = $this->service->uploadFiles($reportBuilder, $file);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.upload.failed'), Arr::wrap($e->getMessage()), Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.upload.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE, $e->getMessage());
         }
 
         return response()->json([ 'fileName' => 'your file name put here', 'uploaded' => true, 'url' => $result, ]);

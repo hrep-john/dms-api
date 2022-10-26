@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Role;
 
+use App\Rules\UniqueTenantRole;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateRequest extends FormRequest
@@ -23,8 +24,10 @@ class UpdateRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->route('role.id');
+
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', new UniqueTenantRole($id)],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['required', 'string', 'max:255', 'exists:permissions,name'],
         ];

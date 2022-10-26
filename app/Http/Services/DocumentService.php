@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use App;
+use App\Enums\AllowUserAccess;
 use App\Enums\ExtractableOcr;
 use App\Http\Resources\DocumentBasicResource;
 use App\Http\Services\Contracts\DocumentServiceInterface;
@@ -11,6 +12,7 @@ use App\Http\Services\Contracts\UserServiceInterface;
 use App\Jobs\ExtractDocument;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Document;
+use App\Models\TenantSetting;
 use Arr;
 use Event;
 use MeiliSearch\Endpoints\Indexes;
@@ -251,6 +253,8 @@ class DocumentService extends BaseService implements DocumentServiceInterface
                 ])
                 ->toMediaCollection('files');
 
+            $this->writeDocumentAuditLog($document, 'uploaded');
+
             $document->searchable();
 
             $extractable = array(
@@ -291,9 +295,13 @@ class DocumentService extends BaseService implements DocumentServiceInterface
         return $count;
     }
 
-    protected function formatAttributes($attributes): array
+    protected function formatAttributes($attributes, $method): array
     {
         $attributes['user_defined_field'] = JSON_ENCODE($attributes['user_defined_field'] ?? []);
+
+        if ($method === 'store') {
+            $attributes['allow_user_access'] = TenantSetting::where('key', 'tenant.default.document.user.access')->first()['value'];
+        }
 
         return $attributes;
     }
@@ -302,13 +310,27 @@ class DocumentService extends BaseService implements DocumentServiceInterface
     {
         App::make(TenantSettingServiceInterface::class)->incrementTenantDocumentSeriesId($model['tenant_id']);
 
-        $users = App::make(UserServiceInterface::class)->getSuperAdminUsers();
+        $users = $this->getAllowedUserAccess($model);
 
-        if (!in_array(auth()->user()->id, $users)) {
-            $users[] = auth()->user()->id;
+        $model->userAccess()->sync($users);
+    }
+
+    private function getAllowedUserAccess($model)
+    {
+        // include admins
+        $users = App::make(UserServiceInterface::class)->getSuperAdminUsers();
+        $owner = $model->created_by;
+
+        // include document owner
+        $users[] = $owner;
+
+        $defaultDocumentUserAccessSettings = $model->allow_user_access;
+
+        if ($defaultDocumentUserAccessSettings === AllowUserAccess::YesAllowAllUsers) {
+            $users = App::make(UserServiceInterface::class)->all()->pluck('id');
         }
 
-        $model->userAccess()->attach($users);
+        return $users;
     }
 
     protected function afterUpdated($model, $attributes): void

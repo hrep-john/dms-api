@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use App;
+use App\Enums\AllowUserAccess;
 use App\Enums\UserLevel;
 use App\Http\Services\Contracts\RoleServiceInterface;
 use App\Http\Services\Contracts\TenantServiceInterface;
@@ -132,6 +133,13 @@ class TenantService extends BaseService implements TenantServiceInterface
             'type' => 'number',
             'comments' => 'Tenant Document Series Counter Length'
         ],
+        [
+            'label' => 'Tenant Default Document User Access',
+            'key' => 'tenant.default.document.user.access',
+            'value' => AllowUserAccess::NoDontAllow,
+            'type' => 'number',
+            'comments' => 'Tenant Default Document User Access'
+        ]
     ];
 
     /**

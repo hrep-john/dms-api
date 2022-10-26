@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\ReportBuilder;
 
+use App\Rules\UniqueTenantReportBuilder;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateRequest extends FormRequest
@@ -23,9 +24,11 @@ class UpdateRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->route('report_builder.id');
+
         return [
             'module' => ['required', 'string', 'max:255'],
-            'name' => ['required', 'string', 'max:255', 'unique:report_builders,name,' . $this->route('report_builder.id')],
+            'name' => ['required', 'string', 'max:255', new UniqueTenantReportBuilder($id)],
             'format' => ['required', 'json'],
         ];
     }

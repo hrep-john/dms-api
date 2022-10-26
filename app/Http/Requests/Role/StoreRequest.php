@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Role;
 
+use App\Rules\UniqueTenantRole;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
@@ -24,7 +25,7 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', new UniqueTenantRole()],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['required', 'string', 'max:255', 'exists:permissions,name'],
         ];

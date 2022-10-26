@@ -46,7 +46,7 @@ class CustomReportService extends BaseService implements CustomReportServiceInte
     public function buildSummary($template, $filters)
     {
         $query = $template->format->query;
-        
+
         unset($query->orderBy);
 
         $builder = $this->build($query, $filters);
