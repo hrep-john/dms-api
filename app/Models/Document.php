@@ -182,11 +182,15 @@ class Document extends BaseModel implements HasMedia
     private function getUdfCustomLabel($settings, $value) 
     {
         $label = '';
+        Logger('getUdfCustomLabel');
+        Logger($value);
 
         if ($settings['source'] === 'custom') {
             $data = collect($settings['data'])->where('id', $value)->first();
             $label = $data['label'];
         } else if ($settings['source'] === 'users') {
+            Logger($settings);
+            Logger($value);
             $label = App::make(UserServiceInterface::class)->find($value)->user_info->full_name;
         }
 

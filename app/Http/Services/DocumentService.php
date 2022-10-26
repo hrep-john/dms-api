@@ -253,6 +253,8 @@ class DocumentService extends BaseService implements DocumentServiceInterface
                 ])
                 ->toMediaCollection('files');
 
+            $this->writeDocumentAuditLog($document, 'uploaded');
+
             $document->searchable();
 
             $extractable = array(
