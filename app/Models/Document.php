@@ -30,8 +30,7 @@ class Document extends BaseModel implements HasMedia
     ];
 
     protected $casts = [
-        'user_defined_field'    => 'string',
-        'allow_user_access'     => 'boolean',
+        'user_defined_field' => 'string',
     ];
 
     protected $appends = [

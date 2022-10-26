@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\User;
 
+use App\Rules\UniqueTenantUserEmail;
+use App\Rules\UniqueTenantUserUsername;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,8 +29,8 @@ class StoreRequest extends FormRequest
         $todayDate = date('Y-m-d');
 
         return [
-            'username' => ['required', 'string', 'max:50', 'unique:users,username,' . $this->route('user.id'), 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $this->route('user.id')],
+            'username' => ['required', 'string', 'max:50', 'max:255', new UniqueTenantUserUsername()],
+            'email' => ['required', 'email', 'max:255', new UniqueTenantUserEmail()],
             'password' => ['required', 'string', 'max:25', 'min:6'],
             'roles' => ['required', 'exists:roles,name'],
             'user_info' => ['required'],

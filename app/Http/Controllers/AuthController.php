@@ -14,7 +14,6 @@ use App\Mail\PasswordReset;
 use App\Mail\PasswordResetOtp;
 use App\Models\User;
 use App\Traits\ApiResponder;
-use Arr;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -144,7 +143,7 @@ class AuthController extends Controller
             if ($type === 'spa' || !$type) Mail::to($user->email)->send(new PasswordReset($reset_pass_link));
             else Mail::to($user->email)->send(new PasswordResetOtp($token));
         } catch (\Exception $e) {
-            $this->throwError(Lang::get('error.email.failed'), Arr::wrap($e->getMessage()), Response::HTTP_BAD_GATEWAY, ApiErrorResponse::SMTP_ERROR_CODE);
+            $this->throwError(Lang::get('error.email.failed'), NULL, Response::HTTP_BAD_GATEWAY, ApiErrorResponse::SMTP_ERROR_CODE, $e->getMessage());
         }
 
         return $this->success(['message' => Lang::get('info.reset.password.sent', [

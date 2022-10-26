@@ -2,23 +2,23 @@
 
 namespace App\Rules;
 
-use App\Models\UserDefinedField;
+use App\Models\Role;
 use Illuminate\Contracts\Validation\Rule;
 
-class UniqueTenantUdf implements Rule
+class UniqueTenantRole implements Rule
 {
     private $attribute = '';
     private $value = '';
-    private $udfId = null;
+    private $id = null;
 
     /**
      * Create a new rule instance.
      *
      * @return void
      */
-    public function __construct($udfId = null)
+    public function __construct($id = null)
     {
-        $this->udfId = $udfId;
+        $this->id = $id;
     }
 
     /**
@@ -33,13 +33,13 @@ class UniqueTenantUdf implements Rule
         $this->attribute = $attribute;
         $this->value = $value;
 
-        $tenantId = request('tenant_id');
-        $udfId = $this->udfId;
+        $tenantId = \App\Helpers\tenant();
+        $id = $this->id;
 
-        $model = UserDefinedField::where('tenant_id', $tenantId)
-            ->where('label', $value)
-            ->when(!is_null($udfId), function ($query) use ($udfId) {
-                return $query->where('id', '<>', $udfId);
+        $model = Role::where('tenant_id', $tenantId)
+            ->where('name', $value)
+            ->when(!is_null($id), function ($query) use ($id) {
+                return $query->where('id', '<>', $id);
             });
 
         return $model->count() === 0;
@@ -52,6 +52,6 @@ class UniqueTenantUdf implements Rule
      */
     public function message()
     {
-        return sprintf('The UDF label has already been taken [%s: %s].', $this->attribute, $this->value);
+        return sprintf('The role name has already been taken [%s: %s].', $this->attribute, $this->value);
     }
 }

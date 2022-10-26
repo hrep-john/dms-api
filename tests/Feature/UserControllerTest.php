@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Role;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,6 +17,8 @@ class UserControllerTest extends TestCase
 {
     use DatabaseTransactions;
 
+    protected $domain = 'demo.uat-dms.localhost:3000';
+
     public function test_accessing_the_user_list_page_should_successfully_display_the_page()
     {
         $authUser = User::factory()->make();
@@ -25,143 +28,166 @@ class UserControllerTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_storing_an_admin_user_with_a_required_input_should_save_the_data_in_database_and_return_the_the_details_of_the_saved_user()
+    public function test_storing_an_admin_user_with_a_required_input_should_save_the_data_in_database_and_return_the_details_of_the_saved_user()
     {
         $authUser = User::factory()->make();
 
         $payload = $this->getRequiredPayload();
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertCreated();
         $this->assertRequiredPayload($response, $payload);
     }
 
-    public function test_storing_an_encoder_user_with_a_required_input_should_save_the_data_in_database_and_return_the_the_details_of_the_saved_user()
+    public function test_storing_first_role_user_with_a_required_input_should_save_the_data_in_database_and_return_the_details_of_the_saved_user()
     {
         $authUser = User::factory()->make();
 
         $payload = $this->getRequiredPayload();
-        $payload['roles'] = ['Encoder'];
+        $role = Role::first();
+        $payload['roles'] = [$role->name];
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertCreated();
         $this->assertRequiredPayload($response, $payload);
     }
 
-    public function test_storing_a_user_with_a_middle_name_input_should_save_the_data_in_database_and_return_the_the_details_of_the_saved_user()
+    public function test_storing_a_user_with_a_middle_name_input_should_save_the_data_in_database_and_return_the_details_of_the_saved_user()
     {
         $authUser = User::factory()->make();
 
         $payload = $this->getRequiredPayload();
         $payload['user_info']['middle_name'] = 'johndoe';
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertCreated();
         $this->assertEquals($response['result']['user_info']['middle_name'], $payload['user_info']['middle_name']);
     }
 
-    public function test_storing_a_user_with_a_mobile_number_input_should_save_the_data_in_database_and_return_the_the_details_of_the_saved_user()
+    public function test_storing_a_user_with_a_mobile_number_input_should_save_the_data_in_database_and_return_the_details_of_the_saved_user()
     {
         $authUser = User::factory()->make();
 
         $payload = $this->getRequiredPayload();
         $payload['user_info']['mobile_number'] = '09123456789';
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertCreated();
         $this->assertEquals($response['result']['user_info']['mobile_number'], $payload['user_info']['mobile_number']);
     }
 
-    public function test_storing_a_user_with_a_birthday_input_should_save_the_data_in_database_and_return_the_the_details_of_the_saved_user()
+    public function test_storing_a_user_with_a_birthday_input_should_save_the_data_in_database_and_return_the_details_of_the_saved_user()
     {
         $authUser = User::factory()->make();
 
         $payload = $this->getRequiredPayload();
         $payload['user_info']['birthday'] = '2000-01-01';
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertCreated();
         $this->assertEquals($response['result']['user_info']['birthday'], $payload['user_info']['birthday']);
     }
 
-    public function test_storing_a_user_with_a_male_gender_input_should_save_the_data_in_database_and_return_the_the_details_of_the_saved_user()
+    public function test_storing_a_user_with_a_male_gender_input_should_save_the_data_in_database_and_return_the_details_of_the_saved_user()
     {
         $authUser = User::factory()->make();
 
         $payload = $this->getRequiredPayload();
         $payload['user_info']['sex'] = 'male';
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertCreated();
         $this->assertEquals($response['result']['user_info']['sex'], $payload['user_info']['sex']);
     }
 
-    public function test_storing_a_user_with_a_female_gender_input_should_save_the_data_in_database_and_return_the_the_details_of_the_saved_user()
+    public function test_storing_a_user_with_a_female_gender_input_should_save_the_data_in_database_and_return_the_details_of_the_saved_user()
     {
         $authUser = User::factory()->make();
 
         $payload = $this->getRequiredPayload();
         $payload['user_info']['sex'] = 'female';
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertCreated();
         $this->assertEquals($response['result']['user_info']['sex'], $payload['user_info']['sex']);
     }
 
-    public function test_storing_a_user_with_a_home_address_input_should_save_the_data_in_database_and_return_the_the_details_of_the_saved_user()
+    public function test_storing_a_user_with_a_home_address_input_should_save_the_data_in_database_and_return_the_details_of_the_saved_user()
     {
         $authUser = User::factory()->make();
 
         $payload = $this->getRequiredPayload();
         $payload['user_info']['home_address'] = 'loremlorem lorem lorem';
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertCreated();
         $this->assertEquals($response['result']['user_info']['home_address'], $payload['user_info']['home_address']);
     }
 
-    public function test_storing_a_user_with_a_barangay_input_should_save_the_data_in_database_and_return_the_the_details_of_the_saved_user()
+    public function test_storing_a_user_with_a_barangay_input_should_save_the_data_in_database_and_return_the_details_of_the_saved_user()
     {
         $authUser = User::factory()->make();
 
         $payload = $this->getRequiredPayload();
         $payload['user_info']['barangay'] = 'loremlorem lorem lorem';
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertCreated();
         $this->assertEquals($response['result']['user_info']['barangay'], $payload['user_info']['barangay']);
     }
 
-    public function test_storing_a_user_with_a_city_input_should_save_the_data_in_database_and_return_the_the_details_of_the_saved_user()
+    public function test_storing_a_user_with_a_city_input_should_save_the_data_in_database_and_return_the_details_of_the_saved_user()
     {
         $authUser = User::factory()->make();
 
         $payload = $this->getRequiredPayload();
         $payload['user_info']['city'] = 'loremlorem lorem lorem';
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertCreated();
         $this->assertEquals($response['result']['user_info']['city'], $payload['user_info']['city']);
     }
 
-    public function test_storing_a_user_with_a_region_input_should_save_the_data_in_database_and_return_the_the_details_of_the_saved_user()
+    public function test_storing_a_user_with_a_region_input_should_save_the_data_in_database_and_return_the_details_of_the_saved_user()
     {
         $authUser = User::factory()->make();
 
         $payload = $this->getRequiredPayload();
         $payload['user_info']['region'] = 'loremlorem lorem lorem';
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertCreated();
         $this->assertEquals($response['result']['user_info']['region'], $payload['user_info']['region']);
@@ -174,7 +200,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         $payload['username'] = Str::random(51);
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -186,7 +214,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         $payload['username'] = User::first()->username;
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -198,7 +228,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         $payload['username'] = 123123123;
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -210,7 +242,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         unset($payload['username']);
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -222,7 +256,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         $payload['email'] = User::first()->email;
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -234,7 +270,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         $payload['email'] = 123123123;
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -246,7 +284,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         $payload['email'] = '123123123';
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -258,7 +298,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         unset($payload['email']);
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -270,7 +312,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         $payload['email'] = Str::random(256);
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -282,7 +326,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         $payload['password'] = Str::random(26);
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -294,7 +340,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         $payload['password'] = Str::random(5);
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -306,7 +354,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         unset($payload['password']);
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -318,7 +368,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         $payload['roles'] = ['random'];
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -330,7 +382,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         unset($payload['roles']);
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -342,7 +396,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         unset($payload['user_info']);
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -354,7 +410,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         unset($payload['user_info']['tenant_id']);
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -366,7 +424,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         $payload['user_info']['tenant_id'] = 'asd';
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -378,7 +438,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         unset($payload['user_info']['first_name']);
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -390,7 +452,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         $payload['user_info']['first_name'] = 123123123;
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -402,7 +466,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         $payload['user_info']['first_name'] = Str::random(256);
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -414,7 +480,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         unset($payload['user_info']['last_name']);
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -426,7 +494,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         $payload['user_info']['last_name'] = 123123123;
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }
@@ -438,7 +508,9 @@ class UserControllerTest extends TestCase
         $payload = $this->getRequiredPayload();
         $payload['user_info']['last_name'] = Str::random(256);
 
-        $response = $this->actingAs($authUser)->post('/api/users', $payload);
+        $response = $this->actingAs($authUser)->post('/api/users', $payload, [
+            'domain' => $this->domain
+        ]);
 
         $response->assertStatus(Response::HTTP_FOUND);
     }

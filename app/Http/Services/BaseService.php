@@ -14,9 +14,11 @@ class BaseService implements BaseServiceInterface
     use DatabaseTransaction;
 
     /**      
-     * @var Model      
+     * @var model      
+     * @var joins     
      */     
     protected $model;       
+    protected $joins = [];       
 
     /**      
      * BaseService constructor.      
@@ -34,6 +36,7 @@ class BaseService implements BaseServiceInterface
     public function all($withFiltering = true)
     {
         $builder = $this->model;
+        $builder = $this->buildJoins($builder);
 
         if ($withFiltering) {
             $filters = request()->get('filters', []);
@@ -82,13 +85,13 @@ class BaseService implements BaseServiceInterface
     {
         $that = $this;
 
-        $attributes = array_merge($this->formatAttributes($attributes), [
+        $newAttributes = array_merge($this->formatAttributes($attributes, 'store'), [
             'created_by' => auth()->user()->id,
             'updated_by' => auth()->user()->id
         ]);
 
-        return $this->transaction(function() use ($attributes, $that) {
-            $model = $that->model->create($attributes);
+        return $this->transaction(function() use ($newAttributes, $attributes, $that) {
+            $model = $that->model->create($newAttributes);
             $that->afterStore($model, $attributes);
 
             return $this->model->withoutGlobalScopes()->find($model->id);
@@ -105,12 +108,13 @@ class BaseService implements BaseServiceInterface
     {
         $that = $this;
 
-        $attributes = array_merge($this->formatAttributes($attributes), [
+        $newAttributes = array_merge($this->formatAttributes($attributes, 'update'), [
             'updated_by' => auth()->user()->id,
         ]);
 
-        return $this->transaction(function() use ($attributes, $model, $that) {
-            $model->update($attributes);
+        return $this->transaction(function() use ($newAttributes, $attributes, $model, $that) {
+            $model->update($newAttributes);
+            $model->touch();
             $that->afterUpdated($model, $attributes);
 
             return $model;
@@ -164,9 +168,18 @@ class BaseService implements BaseServiceInterface
         return $this->model->where($field, $value)->first();
     }
 
+    protected function buildJoins($builder)
+    {
+        foreach ($this->joins as $join) {
+            $builder = $builder->join($join['table'], $join['column_x'], $join['operator'], $join['column_y']);
+        }
+
+        return $builder;
+    }
+
     // Custom Hooks
 
-    protected function formatAttributes($attributes): array
+    protected function formatAttributes($attributes, $method): array
     {
         return $attributes;
     }
