@@ -30,8 +30,6 @@ class CustomReportService extends BaseService implements CustomReportServiceInte
     {
         $template = JSON_DECODE(JSON_DECODE($template->format)->query);
         $builder = $this->build($template, $filters);
-        Logger('debug custom report');
-        Logger($builder->toSql());
 
         $perPage = request()->get('per_page', 10);
 
@@ -48,7 +46,7 @@ class CustomReportService extends BaseService implements CustomReportServiceInte
     public function buildSummary($template, $filters)
     {
         $query = $template->format->query;
-        
+
         unset($query->orderBy);
 
         $builder = $this->build($query, $filters);

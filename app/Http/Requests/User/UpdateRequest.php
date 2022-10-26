@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\User;
 
+use App\Rules\UniqueTenantUserEmail;
+use App\Rules\UniqueTenantUserUsername;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
@@ -26,10 +28,11 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         $todayDate = date('Y-m-d');
+        $id = $this->route('user.id');
 
         return [
-            'username' => ['required', 'string', 'max:50', 'max:255', 'unique:users,username,' . $this->route('user.id')],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $this->route('user.id')],
+            'username' => ['required', 'string', 'max:50', 'max:255', new UniqueTenantUserUsername($id)],
+            'email' => ['required', 'email', 'max:255', new UniqueTenantUserEmail($id)],
             'roles' => ['required', 'exists:roles,name'],
             'user_info' => ['required'],
             'user_info.tenant_id' => ['required', 'integer'],

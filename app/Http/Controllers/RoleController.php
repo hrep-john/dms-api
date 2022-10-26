@@ -53,7 +53,7 @@ class RoleController extends Controller
         try {
             $result = $this->service->store($request->validated());
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.save.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.save.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE, $e->getMessage());
         }
 
         return $this->success([
@@ -91,7 +91,7 @@ class RoleController extends Controller
         try {
             $result = $this->service->update($request->validated(), $role);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.update.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.update.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE, $e->getMessage());
         }
 
         return $this->success([
@@ -112,7 +112,7 @@ class RoleController extends Controller
         try {
             $this->service->delete($role);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.delete.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.delete.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE, $e->getMessage());
         }
 
         return $this->success(null, Response::HTTP_NO_CONTENT);

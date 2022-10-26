@@ -25,11 +25,11 @@ class UpdateRequest extends FormRequest
      */
     public function rules()
     {
-        $id = request('tenant_id');
+        $id = $this->route('tenant.id');
 
         return [
-            'domain' => ['nullable', 'string', 'max:50', 'unique:tenants,domain,'.$id],
-            'name' => ['nullable', 'string', 'max:50', 'unique:tenants,name,'.$id]
+            'domain' => ['required', 'string', 'max:50', 'unique:tenants,domain,'.$id],
+            'name' => ['required', 'string', 'max:50', 'unique:tenants,name,'.$id]
         ];
     }
 }

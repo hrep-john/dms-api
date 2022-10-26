@@ -41,12 +41,18 @@ trait ApiResponder
      *
      * @return void
      */
-    protected function throwError(string $message, ?array $errors,  int $statusCode, string $errorCode = NULL)
-    {
-        Logger('apiresponsder');
+    protected function throwError(
+        string $message, 
+        ?array $errors, 
+        int $statusCode, 
+        string $errorCode = NULL, 
+        string $errorMessage = NULL
+    ){
+        Logger('apiresponsder throwError');
         Logger([
             'message' => $message,
             'errors' => $errors,
+            'error_message' => $errorMessage,
             'status_code' => $statusCode,
             'error_code' => $errorCode
         ]);

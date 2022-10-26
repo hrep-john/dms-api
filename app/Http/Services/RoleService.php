@@ -25,50 +25,6 @@ class RoleService extends BaseService implements RoleServiceInterface
         $this->permissionModel = $permissionModel;
     }
 
-    /**
-    * @param array $attributes
-    *
-    * @return Model
-    */
-    public function store($attributes): Model
-    {
-        $that = $this;
-
-        $newAttributes = array_merge($this->formatAttributes($attributes), [
-            'created_by' => auth()->user()->id,
-            'updated_by' => auth()->user()->id
-        ]);
-
-        return $this->transaction(function() use ($newAttributes, $attributes, $that) {
-            $model = $that->model->create($newAttributes);
-            $that->afterStore($model, $attributes);
-
-            return $this->model->withoutGlobalScopes()->find($model->id);
-        });
-    }
-
-    /**
-    * @param array $attributes
-    * @param int $id
-    *
-    * @return Model
-    */
-    public function update(array $attributes, Model $model): Model
-    {
-        $that = $this;
-
-        $newAttributes = array_merge($this->formatAttributes($attributes), [
-            'updated_by' => auth()->user()->id,
-        ]);
-
-        return $this->transaction(function() use ($attributes, $newAttributes, $model, $that) {
-            $model->update($newAttributes);
-            $that->afterUpdated($model, $attributes);
-
-            return $model;
-        });
-    }
-
     public function permissionList()
     {
         $tenantId = \App\Helpers\tenant();
@@ -135,7 +91,7 @@ class RoleService extends BaseService implements RoleServiceInterface
         }
     }
 
-    protected function formatAttributes($attributes): array
+    protected function formatAttributes($attributes, $method): array
     {
         $tenantId = \App\Helpers\tenant();
 
@@ -150,10 +106,7 @@ class RoleService extends BaseService implements RoleServiceInterface
 
     protected function afterStore($model, $attributes): void
     {
-        Logger('beforesyncc');
         $permissions = Permission::whereIn('name', $attributes['permissions'])->where('guard_name', 'api - tenant '.$model->tenant_id)->pluck('id');
-        Logger($permissions);
-        Logger($model);
 
         $model->syncPermissions($permissions);
     }
@@ -198,11 +151,17 @@ class RoleService extends BaseService implements RoleServiceInterface
                 'User: Edit User',
                 'User: Delete User',
             ],
+            'Tenant' => [
+                'Tenant: View List',
+                'Tenant: Create',
+                'Tenant: Edit Tenant',
+                'Tenant: Delete Tenant',
+            ],
             'Role' => [
                 'Role: View List',
                 'Role: Create',
-                'Role: Edit User',
-                'Role: Delete User',
+                'Role: Edit Role',
+                'Role: Delete Role',
             ],
             'Report' => [
                 'Report: View',

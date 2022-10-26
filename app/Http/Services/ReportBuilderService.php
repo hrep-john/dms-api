@@ -24,7 +24,7 @@ class ReportBuilderService extends BaseService implements ReportBuilderServiceIn
         return $this->model->where('slug', $slug)->first();
     }
 
-    protected function formatAttributes($attributes): array
+    protected function formatAttributes($attributes, $method): array
     {
         $attributes['slug'] = Str::slug($attributes['name']);
         $attributes['tenant_id'] = \App\Helpers\tenant();

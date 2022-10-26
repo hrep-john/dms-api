@@ -48,8 +48,7 @@ class CustomReportController extends Controller
             $results = $this->paginate($results);
             $results['data'] = $this->formatDataByColumnSettings($results['data'], $template);
         } catch (Exception $e) {
-            Logger($e);
-            $this->throwError(Lang::get('error.show.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.show.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE, $e->getMessage());
         }
 
         return $this->success([
@@ -78,9 +77,6 @@ class CustomReportController extends Controller
                     $type = $this->getColumnType($rawColumns, $column);
 
                     if ($type === 'dropdown') {
-                        Logger('debug formatDataByColumnSettings');
-                        Logger($column);
-                        Logger($value);
                         $udf = UserDefinedField::where('key', $column)->first();
                         $udfSettings = JSON_DECODE($udf->settings);
                         $udfSource = $udfSettings->source;

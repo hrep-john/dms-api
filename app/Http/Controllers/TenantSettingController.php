@@ -13,11 +13,9 @@ use App\Http\Requests\TenantSetting\UpdateRequest;
 use App\Http\Requests\TenantSettingDomainRequest;
 use App\Http\Requests\UploadTenantSettingImage;
 use App\Http\Services\Contracts\TenantServiceInterface;
-use App\Mail\PasswordResetOtp;
 use App\Traits\ApiResponder;
 use Exception;
 use Lang;
-use Mail;
 use Symfony\Component\HttpFoundation\Response;
 
 class TenantSettingController extends Controller
@@ -57,7 +55,7 @@ class TenantSettingController extends Controller
         try {
             $result = $this->service->store($request->validated());
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.save.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.save.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE, $e->getMessage());
         }
 
         return $this->success([
@@ -112,7 +110,7 @@ class TenantSettingController extends Controller
         try {
             $result = $this->service->update($request->validated(), $tenantSetting);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.update.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.update.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE, $e->getMessage());
         }
 
         return $this->success([
@@ -132,7 +130,7 @@ class TenantSettingController extends Controller
         try {
             $this->service->delete($tenantSetting);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.delete.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.delete.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE, $e->getMessage());
         }
 
         return $this->success(null, Response::HTTP_NO_CONTENT);
@@ -152,7 +150,7 @@ class TenantSettingController extends Controller
 
             $this->service->sync($model, $request['settings']);
         } catch (Exception $e) {
-            $this->throwError(Lang::get('error.update.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE);
+            $this->throwError(Lang::get('error.update.failed'), NULL, Response::HTTP_INTERNAL_SERVER_ERROR, ApiErrorResponse::SERVER_ERROR_CODE, $e->getMessage());
         }
 
         return $this->success([

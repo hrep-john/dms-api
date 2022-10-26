@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\ReportBuilder;
 
+use App\Rules\UniqueTenantReportBuilder;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
@@ -25,7 +26,7 @@ class StoreRequest extends FormRequest
     {
         return [
             'module' => ['required', 'string', 'max:255'],
-            'name' => ['required', 'string', 'max:255', 'unique:report_builders,name'],
+            'name' => ['required', 'string', 'max:255', new UniqueTenantReportBuilder()],
             'format' => ['required', 'json'],
         ];
     }
