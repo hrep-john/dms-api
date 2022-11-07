@@ -141,7 +141,8 @@ class Document extends BaseModel implements HasMedia
 
     public function getFormattedDetailMetadataAttribute() 
     {
-        return $this->detailMetadata->take(500)->pluck('text')->join(' ');
+        $details = $this->detailMetadata->take(250);
+        return $details->pluck('text')->join(' ');
     }
 
     public function getFileExtensionAttribute() 
