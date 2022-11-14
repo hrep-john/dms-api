@@ -183,6 +183,9 @@ class Document extends BaseModel implements HasMedia
     {
         $label = '';
         Logger('getUdfCustomLabel');
+        Logger('settings');
+        Logger($settings);
+        Logger('value');
         Logger($value);
 
         if ($settings['source'] === 'custom') {
