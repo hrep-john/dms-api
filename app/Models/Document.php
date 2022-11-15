@@ -126,11 +126,15 @@ class Document extends BaseModel implements HasMedia
         Logger('tenantId');
         Logger($tenantId);
         $udfs = $this->flatten_udfs;
-        $udfCollection = UserDefinedField::get(['key', 'settings']);
+        $udfCollection = UserDefinedField::where('tenant_id', $tenantId)->get(['key', 'settings']);
 
         foreach ($udfs as $key => $value) {
             if (!empty($value)) {
-                $settings = $udfCollection->where('tenant_id', $tenantId)->where('key', $key)->first()->settings;
+                Logger('udfCollection');
+                Logger($udfCollection);
+                Logger('key');
+                Logger($key);
+                $settings = $udfCollection->where('key', $key)->first()->settings;
                 $settings = JSON_DECODE($settings, true);
 
                 if (count($settings) > 0) {
