@@ -122,12 +122,15 @@ class Document extends BaseModel implements HasMedia
 
     public function getFormattedUdfsAttribute() 
     {
+        $tenantId = $this->tenant_id;
+        Logger('tenantId');
+        Logger($tenantId);
         $udfs = $this->flatten_udfs;
         $udfCollection = UserDefinedField::get(['key', 'settings']);
 
         foreach ($udfs as $key => $value) {
             if (!empty($value)) {
-                $settings = $udfCollection->where('key', $key)->first()->settings;
+                $settings = $udfCollection->where('tenant_id', $tenantId)->where('key', $key)->first()->settings;
                 $settings = JSON_DECODE($settings, true);
 
                 if (count($settings) > 0) {
