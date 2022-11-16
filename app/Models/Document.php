@@ -166,7 +166,7 @@ class Document extends BaseModel implements HasMedia
 
     public function getTenantIdAttribute() 
     {
-        return $this->folder->tenant_id ?? '';
+        return $this->folder->tenant_id ?? null;
     }
 
     public function getUserAccessAttribute() 
