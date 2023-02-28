@@ -26,7 +26,20 @@ class StoreRequest extends FormRequest
     {
         return [
             'document_id' => ['required', 'integer'],
-            'transmittal_url' => ['required', 'string']
+            'image' => ['required']
+        ];
+    }
+
+    /**
+     * Custom message for validation
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'image.mimes' => 'The uploaded file must a JPEG or PNG',
+            'image.max' => 'The file must not exceed 10MB'
         ];
     }
 }
