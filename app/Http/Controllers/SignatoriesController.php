@@ -8,6 +8,7 @@ use App\Traits\ApiResponder;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Signatory\StoreRequest;
 use App\Http\Requests\Signatory\UpdateRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class SignatoriesController extends Controller
 {
@@ -22,9 +23,9 @@ class SignatoriesController extends Controller
     {
         $user = Auth::user();
 
-        $signatories = Signatory::where('tenant_id', $user->tenant_id)->get();
+        $signatories = Signatory::where('tenant_id', $user->user_info->tenant_id)->get();
 
-        return $this->success(['signatories' => $signatories], 200);
+        return $this->success(['signatories' => $signatories], Response::HTTP_OK);
     }
 
     /**
@@ -41,7 +42,7 @@ class SignatoriesController extends Controller
             ->where('tenant_id', $user->user_info->tenant_id)
             ->get()->first();
 
-        if ($checkSignatory) $this->throwError('Signatory already exists.', null, 404, ApiErrorResponse::VALIDATION_ERROR_CODE);
+        if ($checkSignatory) $this->throwError('Signatory already exists.', null, Response::HTTP_NOT_FOUND, ApiErrorResponse::VALIDATION_ERROR_CODE);
 
         $signatory = Signatory::create([
             'tenant_id' => $user->user_info->tenant_id,
@@ -52,9 +53,7 @@ class SignatoriesController extends Controller
             'updated_by' => $user->id
         ]);
 
-        return $this->success([
-            'signatory' => $signatory,
-        ], 201);
+        return $this->success(['signatory' => $signatory], Response::HTTP_CREATED);
     }
 
     /**
@@ -67,9 +66,9 @@ class SignatoriesController extends Controller
     {
         $signatory = Signatory::find($id);
 
-        if (!$signatory) $this->throwError('Signatory not found.', null, 404, ApiErrorResponse::RESOURCE_NOT_FOUND_CODE);
+        if (!$signatory) $this->throwError('Signatory not found.', null, Response::HTTP_NOT_FOUND, ApiErrorResponse::RESOURCE_NOT_FOUND_CODE);
 
-        return $this->success(['signatory' => $signatory], 200);
+        return $this->success(['signatory' => $signatory], Response::HTTP_OK);
     }
 
     /**
@@ -83,7 +82,7 @@ class SignatoriesController extends Controller
     {
         $signatory = Signatory::find($request['id']);
 
-        if (!$signatory) $this->throwError('Signatory not found.', null, 404, ApiErrorResponse::RESOURCE_NOT_FOUND_CODE);
+        if (!$signatory) $this->throwError('Signatory not found.', null, Response::HTTP_NOT_FOUND, ApiErrorResponse::RESOURCE_NOT_FOUND_CODE);
 
         $user = Auth::user();
 
@@ -94,7 +93,7 @@ class SignatoriesController extends Controller
             'updated_by' => $user->id
         ]);
 
-        return $this->success(['signatory' => $signatory], 200);
+        return $this->success(['signatory' => $signatory], Response::HTTP_OK);
     }
 
     /**
@@ -107,10 +106,10 @@ class SignatoriesController extends Controller
     {
         $signatory = Signatory::find($id);
 
-        if (!$signatory) $this->throwError('Signatory not found.', null, 404, ApiErrorResponse::RESOURCE_NOT_FOUND_CODE);
+        if (!$signatory) $this->throwError('Signatory not found.', null, Response::HTTP_NOT_FOUND, ApiErrorResponse::RESOURCE_NOT_FOUND_CODE);
 
         $signatory->delete();
 
-        return $this->success(['signatory' => $signatory], 201);
+        return $this->success(['signatory' => $signatory], Response::HTTP_CREATED);
     }
 }

@@ -2,4 +2,4 @@
 
 use App\Http\Controllers\TransmittalController;
 
-Route::get('transmittal', [TransmittalController::class, 'index'])->name('signatories.index');
+Route::get('transmittal/{id}', [TransmittalController::class, 'index'])->name('transmittal.index');

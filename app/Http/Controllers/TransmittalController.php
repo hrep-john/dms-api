@@ -2,29 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use ApiErrorResponse;
 use App\Models\Transmittal;
-use Illuminate\Http\Request;
+use App\Traits\ApiResponder;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Transmittal\StoreRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class TransmittalController extends Controller
 {
+    use ApiResponder;
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(int $id)
     {
-        //
-    }
+        $transmittal = Transmittal::where('document_id', $id)->first();
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return $this->success(['transmittal' => $transmittal], Response::HTTP_OK);
     }
 
     /**
@@ -33,52 +31,7 @@ class TransmittalController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Transmittal  $transmittal
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Transmittal $transmittal)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Transmittal  $transmittal
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Transmittal $transmittal)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Transmittal  $transmittal
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Transmittal $transmittal)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Transmittal  $transmittal
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Transmittal $transmittal)
+    public function store(StoreRequest $request)
     {
         //
     }
