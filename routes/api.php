@@ -37,3 +37,9 @@ Route::middleware('auth:sanctum')->group(base_path('routes/api_routes/report_bui
 
 /** Custom Report Routes */
 Route::middleware('auth:sanctum')->group(base_path('routes/api_routes/custom_report.php'));
+
+/** Signatory Routes */
+Route::middleware('auth:sanctum')->group(base_path('routes/api_routes/signatories.php'));
+
+/** Transmittal Routes */
+Route::middleware('auth:sanctum')->group(base_path('routes/api_routes/transmittal.php'));
