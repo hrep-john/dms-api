@@ -51,7 +51,7 @@ class TransmittalController extends Controller
 
         $user = Auth::user();
 
-        $transmittal = Transmittal::where('document_id', $request->id)->first();
+        $transmittal = Transmittal::where('document_id', $request->document_id)->first();
         if ($transmittal) {
             $transmittal->update([
                 'transmittal_url' => $fullPath,
@@ -59,7 +59,7 @@ class TransmittalController extends Controller
             ]);
         } else {
             Transmittal::create([
-                'document_id' => $request->document_idd,
+                'document_id' => $request->document_id,
                 'transmittal_url' => $fullPath,
                 'created_by' => $user->id,
                 'updated_by' => $user->id
