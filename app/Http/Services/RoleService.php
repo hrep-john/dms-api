@@ -145,6 +145,10 @@ class RoleService extends BaseService implements RoleServiceInterface
                 'Settings: View Changelogs',
                 'Settings: View Profile',
                 'Settings: Edit Profile',
+                'Settings: View Signatories List',
+                'Settings: Create Signatory',
+                'Settings: Edit Signatory',
+                'Settings: Delete Signatory',
             ],
             'User' => [
                 'User: View List',
@@ -167,12 +171,6 @@ class RoleService extends BaseService implements RoleServiceInterface
             'Report' => [
                 'Report: View',
                 'Report: Print',
-            ],
-            'Signatories' => [
-                'Signatories: View List',
-                'Signatories: Create',
-                'Signatories: Edit Signatory',
-                'Signatories: Delete Signatory',
             ]
         ];
     }
