@@ -39,14 +39,14 @@ class TransmittalController extends Controller
         try {
             $extension = $request->file('image')->getClientOriginalExtension();
             $fileName = $request->document_id . '.' . $extension;
-            $s3Path = 'transmittals/' . $fileName;
+            $s3Path = '/transmittals/' . $fileName;
             Storage::disk('s3')->putFileAs('transmittals', $request->file('image'), $fileName);
         } catch (\Exception $e) {
             $error = ['error' => $e->getMessage()];
             $this->throwError("We've encountered an error in uploading your file", $error, 502, ApiErrorResponse::SERVER_ERROR_CODE);
         }
 
-        $url = 'https://s3.' . env('AWS_DEFAULT_REGION') . '.amazonaws.com/' . env('AWS_BUCKET') . '/';
+        $url = env('AWS_STORAGE_URL');
         $fullPath = $url . $s3Path;
 
         $user = Auth::user();
