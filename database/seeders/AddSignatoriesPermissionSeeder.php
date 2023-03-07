@@ -23,10 +23,10 @@ class AddSignatoriesPermissionSeeder extends Seeder
         }
 
         $permissions = [
-            'Signatories: View List',
-            'Signatories: Create',
-            'Signatories: Edit Signatory',
-            'Signatories: Delete Signatory',
+            'Settings: View Signatories List',
+            'Settings: Create Signatory',
+            'Settings: Edit Signatory',
+            'Settings: Delete Signatory',
         ];
 
         foreach (Tenant::cursor() as $tenant) {
@@ -35,7 +35,7 @@ class AddSignatoriesPermissionSeeder extends Seeder
             foreach ($permissions as $permission) {
                 Permission::create([
                     'name' => $permission,
-                    'module' => 'Signatories',
+                    'module' => 'Settings',
                     'guard_name' => $guard_name,
                 ]);
 
