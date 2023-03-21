@@ -18,7 +18,7 @@ class DocumentBasicResource extends JsonResource
             'id'                => $this->id,
             'series_id'         => $this->series_id,
             'filename'          => $this->file_name,
-            'extension'         => strtolower($this->latest_media->extension),
+            'extension'         => $this->latest_media->extension,
             'size'              => $this->latest_media->human_readable_size,
             'mime_type'         => $this->latest_media->mime_type,
             'url'               => $this->cloud_url,
