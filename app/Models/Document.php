@@ -153,13 +153,13 @@ class Document extends BaseModel implements HasMedia
     {
         // $details = $this->detailMetadata->take(250);
         // return $details->pluck('text')->join(' ');
-        $details = \DB::select('call sp_get_document_detail_metadata(?)', $this->id);
+        $details = \DB::select('call sp_get_document_detail_metadata(?)', [$this->id]);
         return $details;
     }
 
     public function getFileExtensionAttribute() 
     {
-        return strtolower($this->latest_media->extension) ?? '';
+        return $this->latest_media->extension ?? '';
     }
 
     public function getFileSizeAttribute() 
