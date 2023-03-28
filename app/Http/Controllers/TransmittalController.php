@@ -11,6 +11,7 @@ use App\Http\Requests\Transmittal\StoreRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Storage;
 use Event;
+use \OwenIt\Auditing\Events\AuditCustom;
 
 class TransmittalController extends Controller
 {
@@ -38,9 +39,11 @@ class TransmittalController extends Controller
     {
         $s3Path = null;
 
+        $document_id = $request->document_id;
+
         try {
             $extension = $request->file('image')->getClientOriginalExtension();
-            $fileName = $request->document_id . '.' . $extension;
+            $fileName = $document_id . '.' . $extension;
             $s3Path = '/transmittals/' . $fileName;
             Storage::disk('s3')->putFileAs('transmittals', $request->file('image'), $fileName);
         } catch (\Exception $e) {
@@ -52,8 +55,6 @@ class TransmittalController extends Controller
         $fullPath = $url . $s3Path;
 
         $user = Auth::user();
-
-        $document_id = $request->document_id;
 
         $transmittal = Transmittal::where('document_id', $document_id)->first();
         if ($transmittal) {
@@ -80,6 +81,8 @@ class TransmittalController extends Controller
     public function print(int $document_id)
     {
         $this->writeDocumentAuditLog($document_id, 'printed transmittal');
+
+        return $this->success(['transmittal' => 'printed'], Response::HTTP_OK);
     }
 
     public function writeDocumentAuditLog($document_id, $event, $old = [], $new = [])
