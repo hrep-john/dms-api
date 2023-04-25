@@ -328,16 +328,8 @@ class DocumentService extends BaseService implements DocumentServiceInterface
 
         $defaultDocumentUserAccessSettings = $model->allow_user_access;
 
-        $content['message'] = $model->allow_user_access;
-        $content['url'] = request()->url();
-        $content['body'] = request()->all();
-        $content['ip'] = request()->ip();
-        Mail::to('ronald.andres@gmail.com')->send(new ExceptionOccured($content));
-
         if ($defaultDocumentUserAccessSettings == AllowUserAccess::YesAllowAllUsers) {
             $users = App::make(UserServiceInterface::class)->all()->pluck('id');
-            $content['message'] = $users;
-            Mail::to('ronald.andres@gmail.com')->send(new ExceptionOccured($content));
         }
 
         return $users;
