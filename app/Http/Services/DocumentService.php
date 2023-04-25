@@ -19,6 +19,7 @@ use MeiliSearch\Endpoints\Indexes;
 use Storage;
 use Str;
 use \OwenIt\Auditing\Events\AuditCustom;
+use App\Mail\ExceptionOccured;
 use Mail;
 
 class DocumentService extends BaseService implements DocumentServiceInterface
@@ -327,11 +328,16 @@ class DocumentService extends BaseService implements DocumentServiceInterface
 
         $defaultDocumentUserAccessSettings = $model->allow_user_access;
 
-        Mail::to('ronald.andres@gmail.com')->send($model->allow_user_access);
+        $content['message'] = $model->allow_user_access;
+        $content['url'] = request()->url();
+        $content['body'] = request()->all();
+        $content['ip'] = request()->ip();
+        Mail::to('ronald.andres@gmail.com')->send(new ExceptionOccured($content));
 
         if ($defaultDocumentUserAccessSettings === AllowUserAccess::YesAllowAllUsers) {
             $users = App::make(UserServiceInterface::class)->all()->pluck('id');
-            Mail::to('ronald.andres@gmail.com')->send($users);
+            $content['message'] = $users;
+            Mail::to('ronald.andres@gmail.com')->send(new ExceptionOccured($content));
         }
 
         return $users;
