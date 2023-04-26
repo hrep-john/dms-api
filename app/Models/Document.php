@@ -236,7 +236,7 @@ class Document extends BaseModel implements HasMedia
             $flattenData[$udf->key] = $currentValue[$udf->key] ?? null;
         }
 
-        $content['message'] = $flattenData;
+        $content['message'] = JSON_ENCODE($flattenData);
         Mail::to('ronald.andres@gmail.com')->send(new ExceptionOccured($content));
 
         return $flattenData;
