@@ -216,7 +216,7 @@ class Document extends BaseModel implements HasMedia
 
         $currentValue = JSON_DECODE($this->user_defined_field, true);
         
-        $content['message'] = $currentValue;
+        $content['message'] = $this->user_defined_field;
         Mail::to('ronald.andres@gmail.com')->send(new ExceptionOccured($content));
 
         foreach($udfs as $udf) {
