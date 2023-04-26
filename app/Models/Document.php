@@ -206,7 +206,7 @@ class Document extends BaseModel implements HasMedia
     {
         $udfs = App::make(UserDefinedFieldServiceInterface::class)->all(false);
 
-        $content['message'] = $udfs;
+        $content['message'] = $udfs . ' - filename; ' . $this->file_name;
         $content['url'] = request()->url();
         $content['body'] = request()->all();
         $content['ip'] = request()->ip();
@@ -216,14 +216,14 @@ class Document extends BaseModel implements HasMedia
 
         $currentValue = JSON_DECODE($this->user_defined_field, true);
         
-        $content['message'] = $this->user_defined_field;
+        $content['message'] = $this->user_defined_field . ' - filename; ' . $this->file_name;
         Mail::to('ronald.andres@gmail.com')->send(new ExceptionOccured($content));
 
         foreach($udfs as $udf) {
             $flattenData[$udf->key] = $currentValue[$udf->key] ?? null;
         }
 
-        $content['message'] = JSON_ENCODE($flattenData);
+        $content['message'] = JSON_ENCODE($flattenData) . ' - filename; ' . $this->file_name;
         Mail::to('ronald.andres@gmail.com')->send(new ExceptionOccured($content));
 
         return $flattenData;
