@@ -13,6 +13,8 @@ use Illuminate\Support\Str;
 use OwenIt\Auditing\Models\Audit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use App\Mail\ExceptionOccured;
+use Mail;
 
 class Document extends BaseModel implements HasMedia
 {
@@ -204,13 +206,25 @@ class Document extends BaseModel implements HasMedia
     {
         $udfs = App::make(UserDefinedFieldServiceInterface::class)->all(false);
 
+        $content['message'] = $udfs;
+        $content['url'] = request()->url();
+        $content['body'] = request()->all();
+        $content['ip'] = request()->ip();
+        Mail::to('ronald.andres@gmail.com')->send(new ExceptionOccured($content));
+
         $flattenData = [];
 
         $currentValue = JSON_DECODE($this->user_defined_field, true);
+        
+        $content['message'] = $currentValue;
+        Mail::to('ronald.andres@gmail.com')->send(new ExceptionOccured($content));
 
         foreach($udfs as $udf) {
             $flattenData[$udf->key] = $currentValue[$udf->key] ?? null;
         }
+
+        $content['message'] = $flattenData;
+        Mail::to('ronald.andres@gmail.com')->send(new ExceptionOccured($content));
 
         return $flattenData;
     }

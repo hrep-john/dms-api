@@ -19,8 +19,6 @@ use MeiliSearch\Endpoints\Indexes;
 use Storage;
 use Str;
 use \OwenIt\Auditing\Events\AuditCustom;
-use App\Mail\ExceptionOccured;
-use Mail;
 
 class DocumentService extends BaseService implements DocumentServiceInterface
 {
