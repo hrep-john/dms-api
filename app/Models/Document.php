@@ -220,7 +220,7 @@ class Document extends BaseModel implements HasMedia
         // Mail::to('ronald.andres@gmail.com')->send(new ExceptionOccured($content));
 
         foreach($udfs as $udf) {
-            $flattenData[$udf->key] = $currentValue[$udf->key] ?? null;
+            $flattenData[$udf->key] = isset($currentValue[$udf->key]) ? $currentValue[$udf->key] : null;
         }
 
         // $content['message'] = JSON_ENCODE($flattenData) . ' - filename; ' . $this->file_name;
