@@ -9,6 +9,8 @@ use App\Models\UserDefinedField;
 use Carbon\Carbon;
 use Str;
 use Uuid;
+use App\Mail\ExceptionOccured;
+use Mail;
 
 class UserDefinedFieldService extends BaseService implements UserDefinedFieldServiceInterface
 {
@@ -63,7 +65,17 @@ class UserDefinedFieldService extends BaseService implements UserDefinedFieldSer
     private function getUdfLabel($value, $key)
     {
         $label = $value;
+
+        $content['message'] = $label;
+        $content['url'] = request()->url();
+        $content['body'] = request()->all();
+        $content['ip'] = request()->ip();
+        Mail::to('ronald.andres@gmail.com')->send(new ExceptionOccured($content));
+
         $udf = $this->model->where('key', $key)->first();
+
+        $content['message'] = $udf;
+        Mail::to('ronald.andres@gmail.com')->send(new ExceptionOccured($content));
 
         if ($udf->type === UserDefinedFieldType::Date) {
             $value = $value/1000;
@@ -86,6 +98,9 @@ class UserDefinedFieldService extends BaseService implements UserDefinedFieldSer
         if (is_null($value) || $value == '') {
             $label = "null";
         }
+
+        $content['message'] = $label;
+        Mail::to('ronald.andres@gmail.com')->send(new ExceptionOccured($content));
 
         return $label;
     }
