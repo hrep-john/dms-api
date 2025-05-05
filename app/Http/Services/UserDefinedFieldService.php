@@ -9,7 +9,6 @@ use App\Models\UserDefinedField;
 use Carbon\Carbon;
 use Str;
 use Uuid;
-
 class UserDefinedFieldService extends BaseService implements UserDefinedFieldServiceInterface
 {
     /**

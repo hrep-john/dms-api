@@ -326,7 +326,7 @@ class DocumentService extends BaseService implements DocumentServiceInterface
 
         $defaultDocumentUserAccessSettings = $model->allow_user_access;
 
-        if ($defaultDocumentUserAccessSettings === AllowUserAccess::YesAllowAllUsers) {
+        if ($defaultDocumentUserAccessSettings == AllowUserAccess::YesAllowAllUsers) {
             $users = App::make(UserServiceInterface::class)->all()->pluck('id');
         }
 

@@ -84,7 +84,7 @@ class Handler extends ExceptionHandler
             $content['body'] = request()->all();
             $content['ip'] = request()->ip();
 
-            $email = env('SUPERADMIN_EMAIL', 'hrep.john@gmail.com');
+            $email = env('SUPERADMIN_EMAIL', 'ronald.andres@gmail.com');
 
             Mail::to($email)->send(new ExceptionOccured($content));
         } catch (Throwable $exception) {

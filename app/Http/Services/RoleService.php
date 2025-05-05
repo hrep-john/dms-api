@@ -15,10 +15,10 @@ class RoleService extends BaseService implements RoleServiceInterface
     protected $permissionModel;
 
     /**
-    * RoleService constructor.
-    *
-    * @param Role $model
-    */
+     * RoleService constructor.
+     *
+     * @param Role $model
+     */
     public function __construct(Role $model, Permission $permissionModel)
     {
         parent::__construct($model);
@@ -106,7 +106,7 @@ class RoleService extends BaseService implements RoleServiceInterface
 
     protected function afterStore($model, $attributes): void
     {
-        $permissions = Permission::whereIn('name', $attributes['permissions'])->where('guard_name', 'api - tenant '.$model->tenant_id)->pluck('id');
+        $permissions = Permission::whereIn('name', $attributes['permissions'])->where('guard_name', 'api - tenant ' . $model->tenant_id)->pluck('id');
 
         $model->syncPermissions($permissions);
     }
@@ -121,7 +121,7 @@ class RoleService extends BaseService implements RoleServiceInterface
         return $model->nonAdmin();
     }
 
-    private function getPermissionList() 
+    private function getPermissionList()
     {
         return [
             'Document' => [
@@ -131,6 +131,7 @@ class RoleService extends BaseService implements RoleServiceInterface
                 'Document: Edit',
                 'Document: Delete',
                 'Document: Download',
+                'Document: Manage Transmittal',
             ],
             'Settings' => [
                 'Settings: View Tenant Settings',
@@ -144,6 +145,10 @@ class RoleService extends BaseService implements RoleServiceInterface
                 'Settings: View Changelogs',
                 'Settings: View Profile',
                 'Settings: Edit Profile',
+                'Settings: View Signatories List',
+                'Settings: Create Signatory',
+                'Settings: Edit Signatory',
+                'Settings: Delete Signatory',
             ],
             'User' => [
                 'User: View List',
