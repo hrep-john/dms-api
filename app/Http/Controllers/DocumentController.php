@@ -12,6 +12,7 @@ use App\Http\Requests\Document\StoreRequest;
 use App\Http\Requests\Document\UpdateRequest;
 use App\Http\Resources\AuditLogBasicResource;
 use App\Http\Resources\DocumentFullResource;
+use App\Models\Document;
 use Exception;
 use Illuminate\Http\Request;
 use Lang;
@@ -208,5 +209,18 @@ class DocumentController extends Controller
         return $this->success([
             'results' => AuditLogBasicResource::collection($result->auditLogs()->orderBy('updated_at', 'desc')->orderBy('id', 'desc')->get())
         ], Response::HTTP_OK);
+    }
+
+    public function setDocumentSearchable(int $id)
+    {
+        $document = Document::find($id);
+
+        if (!$document) {
+            $this->throwError(Lang::get('error.show.failed'), NULL, Response::HTTP_NOT_FOUND, ApiErrorResponse::UNKNOWN_ROUTE_CODE);
+        }
+
+        $document->searchable();
+
+        return $this->success(null, 204);
     }
 }
