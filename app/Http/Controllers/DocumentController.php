@@ -209,4 +209,17 @@ class DocumentController extends Controller
             'results' => AuditLogBasicResource::collection($result->auditLogs()->orderBy('updated_at', 'desc')->orderBy('id', 'desc')->get())
         ], Response::HTTP_OK);
     }
+
+    public function setDocumentSearchable(int $id)
+    {
+        $document = MainModel::find($id);
+
+        if (!$document) {
+            $this->throwError(Lang::get('error.show.failed'), NULL, Response::HTTP_NOT_FOUND, ApiErrorResponse::UNKNOWN_ROUTE_CODE);
+        }
+
+        $document->searchable();
+
+        return $this->success(null, 204);
+    }
 }
