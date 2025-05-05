@@ -16,3 +16,6 @@ Route::post('documents/{id}/analyze', [DocumentEntityMetadataController::class, 
 Route::apiResource('documents', DocumentController::class);
 Route::apiResource('documents/{id}/metadata/details', DocumentDetailMetadataController::class);
 Route::apiResource('documents/{id}/metadata/entities', DocumentEntityMetadataController::class);
+
+// this api endpoint serves as a utility to set documents transferred from UAT to Live as searchable
+Route::post('documents/set-searchable/{id}', [DocumentController::class, 'setDocumentSearchable'])->name('documents.set-searchable');
