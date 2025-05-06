@@ -3,7 +3,6 @@ phases:
    pre_build:
      commands:
          - cp .env.uat .env
-         - composer install
          - composer update
 artifacts:
    files:
